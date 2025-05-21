@@ -1,5 +1,7 @@
 {
-  "name": "frontend",
+  "name": "skatenotes",
+  "slug": "skate-notes",
+  "owner": "skatenotes",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -18,7 +20,9 @@
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-dotenv": "^3.4.11",
-    "react-native-paper": "^5.14.3"
+    "react-native-paper": "^5.14.3",
+    "expo-updates": "~0.28.13",
+    "expo-dev-client": "~5.1.8"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

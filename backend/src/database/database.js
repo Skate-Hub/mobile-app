@@ -1,18 +1,19 @@
-const mongoose = require('mongoose');
-require('dotenv').config();
+const mongoose = require("mongoose");
+require("dotenv").config();
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(
+      "mongodb+srv://dbSkateNotes:A9v%23kT2z%21Lp8wR3d@clusterskatenotes.mwz9yji.mongodb.net/?retryWrites=true&w=majority&appName=ClusterSkateNotes"
+    );
 
-    console.log('🟢 Conectado ao MongoDB com sucesso!');
+    console.log("🟢 Conectado ao MongoDB com sucesso!");
   } catch (error) {
-    console.error('🔴 Erro ao conectar ao MongoDB:', error.message);
-    process.exit(1); // Encerra o processo em caso de erro
+    console.error("🔴 Erro ao conectar ao MongoDB:", error.message);
+    process.exit(1); 
   }
 };
+
+connectDB();
 
 module.exports = connectDB;

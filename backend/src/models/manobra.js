@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const manobra = new mongoose.Schema(
+const manobraSchema = new mongoose.Schema(
   {
     nome: { type: String, required: true },
     status: { type: String, enum: ["aprender", "aprimorar", "na base"], default: "aprender" },
@@ -10,4 +10,4 @@ const manobra = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = { manobra }
+module.exports = manobraSchema;

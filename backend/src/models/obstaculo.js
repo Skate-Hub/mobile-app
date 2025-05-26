@@ -1,7 +1,8 @@
+// models/obstaculo.js
 const mongoose = require("mongoose");
 const manobraSchema = require("./manobra");
 
-const obstaculo = new mongoose.Schema(
+const obstaculoSchema = new mongoose.Schema(
   {
     nome: { type: String, required: true },
     manobras: [manobraSchema],
@@ -9,4 +10,8 @@ const obstaculo = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = { obstaculo };
+// Aqui criamos o model com o nome 'Obstaculo'
+const Obstaculo = mongoose.model("Obstaculo", obstaculoSchema);
+
+// Exportamos diretamente o model
+module.exports = Obstaculo;

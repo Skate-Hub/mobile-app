@@ -22,7 +22,8 @@
     "react-native-dotenv": "^3.4.11",
     "react-native-paper": "^5.14.3",
     "expo-updates": "~0.28.13",
-    "expo-dev-client": "~5.1.8"
+    "expo-dev-client": "~5.1.8",
+    "react-native-svg": "15.11.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

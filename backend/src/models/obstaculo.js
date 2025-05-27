@@ -6,6 +6,9 @@ const obstaculoSchema = new mongoose.Schema(
   {
     nome: { type: String, required: true },
     manobras: [manobraSchema],
+    iconKey: {
+      type: String
+    }
   },
   { timestamps: true }
 );

@@ -11,25 +11,27 @@ const HomeScreen = ({ navigation }) => { // navigation virá do React Navigation
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchObstacles = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // IMPORTANTE: Quando testar no celular com Expo Go, substitua 'localhost'
-      // pelo IP da sua máquina na rede Wi-Fi.st
-      // Ex: http://192.168.1.10:3000/obstaculos
-      const response = await fetch('http://localhost:3000/obstaculos');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+   useEffect(() => {
+    // Define a função de busca aqui dentro ou chame uma definida fora
+    const loadObstacles = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('http://localhost:3000/obstaculos'); // Atenção a este URL!
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setObstacles(data);
+      } catch (e) {
+        console.error("Erro ao buscar obstáculos:", e); // Verifique o objeto 'e' completo
+        setError(e.message || 'Falha ao carregar obstáculos.');
+      } finally {
+        setIsLoading(false);
       }
-      const data = await response.json();
-      setObstacles(data);
-    } catch (e) {
-      console.error("Erro ao buscar obstáculos:", e);
-      setError(e.message || 'Falha ao carregar obstáculos.');
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    loadObstacles(); // Chama a função para carregar os dados
   }, []);
 
   useEffect(() => {

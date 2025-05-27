@@ -20,9 +20,10 @@ const listarObstaculos = async (req, res) => {
 
 const atualizarObstaculoNome = async (req, res) => {
   try {
-    const id = req.body.id;
+    const id = req.params.id;
     const novoNome = req.body.novoNome;
-    const update = await obstaculoService.atualizarObstaculoNome(id, novoNome);
+    const iconKey = req.body.iconKey;
+    const update = await obstaculoService.atualizarObstaculoNome(id, novoNome, iconKey);
     if (update.modifiedCount == 1) {
       return res
         .status(200)

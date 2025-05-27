@@ -9,10 +9,10 @@ const listarObstaculos = async () => {
   return await Obstaculo.find();
 };
 
-const atualizarObstaculoNome = async (id, novoNome) => {
+const atualizarObstaculoNome = async (id, novoNome, iconKey) => {
   const resultado = await Obstaculo.updateOne(
     { _id: id },
-    { $set: { nome: novoNome } }
+    { $set: { nome: novoNome, iconKey: iconKey } }
   );
   return resultado; // resultado contém info como matchedCount, modifiedCount
 };

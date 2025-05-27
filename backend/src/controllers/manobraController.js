@@ -6,7 +6,7 @@ const listarManobras = async (req, res) => {
 };
 
 const filtrarManobrasStatus = async (req, res) => {
-  const status = req.params.status
+  const status = req.params.status;
   const lista = await manobraService.filtrarManobrasStatus(status);
   res.json(lista);
 };
@@ -24,13 +24,26 @@ const adicionarManobra = async (req, res) => {
       manobraData
     );
     res.status(201).json(manobraAdicionada);
-  } catch (error) {
-    res.status(400).json({ erro: error.message });
+  } catch (err) {
+    res.status(400).json({ erro: err.message });
+  }
+};
+
+const deletarManobra = async (req, res) => {
+  const manobraId = req.params.id;
+
+  try {
+    const deleta = await manobraService.deletarManobras(manobraId);
+
+    res.status(201).json(deleta);
+  } catch (err) {
+    res.status(400).json({ erro: err.message });
   }
 };
 
 module.exports = {
   listarManobras,
   adicionarManobra,
-  filtrarManobrasStatus
+  filtrarManobrasStatus,
+  deletarManobra
 };

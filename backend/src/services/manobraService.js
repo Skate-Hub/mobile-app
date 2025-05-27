@@ -8,9 +8,9 @@ const listarManobras = async () => {
 
 const filtrarManobrasStatus = async (status) => {
   const obstaculos = await Obstaculo.find();
-  const manobras = obstaculos.flatMap((obstaculo) => obstaculo.manobras.filter((manobra)=>(
-    manobra.status === status
-  )));
+  const manobras = obstaculos.flatMap((obstaculo) =>
+    obstaculo.manobras.filter((manobra) => manobra.status === status)
+  );
   return manobras;
 };
 
@@ -30,11 +30,25 @@ const adicionarManobra = async (obstaculoId, manobraData) => {
 
 const atualizarManobrasNome = async () => {};
 
-const atualizarManobrasStatus = async () => {};
+const atualizarManobrasStatus = async (novoStatus, manobraId) => {};
 
-const deletarManobras = async () => {};
+const deletarManobras = async (manobraId) => {
+  const obstaculos = await Obstaculo.find();
+  for (const obstaculo of obstaculos) {
+    const index = obstaculo.manobras.findIndex((manobra) => {
+     return manobra._id.toString() === manobraId;
+    });
 
-const adicionarObservacoes = async () => {};
+    if (index !== -1) {
+      obstaculo.manobras.splice(index, 1);
+      await obstaculo.save();
+      return { mensagem: "manobra deletada com sucesso", obstaculo: obstaculo.nome};
+    }
+  }
+  throw new Error("manobra nao encontrada");
+};
+
+const adicionarObservacoes = async (texto, manobraId) => {};
 
 const adicionarAnexosObservacoes = async () => {};
 

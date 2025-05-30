@@ -18,26 +18,9 @@ import { buscarObstaculos } from "../services/obstaculosService";
 import { Ionicons } from "@expo/vector-icons";
 import Header from "../components/Header";
 
-const HomeScreen = () => {
+const ManobrasScreen = () => {
   const [obstaculos, setObstaculos] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const carregarObstaculos = async () => {
-      try {
-        const data = await buscarObstaculos();
-        if (data) {
-          setObstaculos(data);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar obstáculos:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    carregarObstaculos();
-  }, []);
 
   if (loading) {
     return (
@@ -48,30 +31,11 @@ const HomeScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header/>
-      {obstaculos.lenght > 0 ? (
-        <FlatList
-          data={obstaculos}
-          renderItem={({ item }) => <ObstaculoCard item={item} />}
-          keyExtractor={(item) => item._id.toString()}
-          contentContainerStyle={styles.listContent}
-        />
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Image
-            style={styles.emptyImage}
-            source={require("../assets/icons/placeholder_skater.png")}
-          />
-          <Text style={styles.emptyText}>Cadastre Seu Primeiro Obstáculo</Text>
-          <TouchableOpacity style={{ marginTop: 40 }}>
-            <Ionicons name="add-circle" size={60} color="#000" />
-          </TouchableOpacity>
-        </View>
-      )}
-
-
-
+    <SafeAreaView>
+      <Header />
+      <View>
+        <Text>Manobras</Text>
+      </View>
     </SafeAreaView>
   );
 };
@@ -82,9 +46,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-  },
-  listContent: {
-    padding: 16,
   },
   loadingContainer: {
     flex: 1,
@@ -107,7 +68,6 @@ const styles = StyleSheet.create({
     color: "#000",
     textAlign: "center",
   },
-  
 });
 
-export default HomeScreen;
+export default ManobrasScreen;

@@ -1,3 +1,4 @@
+const { buscarManobrasObstaculo } = require("../../../frontend/services/ManobrasService");
 const obstaculoService = require("../services/obstaculoService");
 
 const criarObstaculo = async (req, res) => {
@@ -51,4 +52,5 @@ module.exports = {
   listarObstaculos,
   atualizarObstaculoNome,
   deletarObstaculo,
+  buscarManobrasObstaculo
 };

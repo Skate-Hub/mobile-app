@@ -5,6 +5,18 @@ const listarManobras = async (req, res) => {
   res.json(lista);
 };
 
+const buscarManobrasObstaculo = async () => {
+  const id = req.params.id;
+
+  try {
+    const lista = await manobraService.buscarManobrasObstaculo(id);
+
+    res.json(lista);
+  } catch (err) {
+    console.error("erro ao buscar manobras (controller): ", err);
+  }
+};
+
 const filtrarManobrasStatus = async (req, res) => {
   const status = req.params.status;
   const lista = await manobraService.filtrarManobrasStatus(status);
@@ -45,5 +57,6 @@ module.exports = {
   listarManobras,
   adicionarManobra,
   filtrarManobrasStatus,
-  deletarManobra
+  deletarManobra,
+  buscarManobrasObstaculo
 };

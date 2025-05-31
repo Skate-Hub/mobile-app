@@ -6,6 +6,23 @@ const listarManobras = async () => {
   return manobras;
 };
 
+const buscarManobrasObstaculo = async (id)=>{
+  try{
+  const obstaculo = await Obstaculo.findById(id)
+
+  if(!obstaculo){
+    throw new Error('Obstaculo nao encontrado');
+  }
+  
+  return obstaculo.manobras || [];
+}catch(err){
+  if (err){
+    console.error('erro ao buscar manobras: ', err);
+    return []
+  }
+}
+}
+
 const filtrarManobrasStatus = async (status) => {
   const obstaculos = await Obstaculo.find();
   const manobras = obstaculos.flatMap((obstaculo) =>

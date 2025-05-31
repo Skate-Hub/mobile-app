@@ -15,7 +15,10 @@ const ObstaculoCard = ({ item }) => {
 
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
-      <Text style={styles.title}>{item.nome}</Text>
+      <View>
+        <Text style={styles.title}>{item.nome}</Text>
+        <Text>manobras adicionadas: {item.manobras.length} </Text>
+      </View>
       <MaterialCommunityIcons name="chevron-right" size={30} />
     </TouchableOpacity>
   );

@@ -4,9 +4,6 @@ import {
   View,
   Text,
   FlatList,
-  StyleSheet,
-  Platform,
-  StatusBar,
   ActivityIndicator,
   Image,
   TouchableOpacity,
@@ -17,11 +14,14 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Header from "../components/estrutura/Header";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput } from "react-native-paper";
+import styles from "../styles/ManobraStyles";
 
 const ManobrasScreen = () => {
   const navigation = useNavigation();
   const [manobras, setManobras] = useState([]);
+  const [manobrasFiltradas, setManobrasFiltradas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [manobraBuscada, setManobraBuscada] = useState("");
 
   useEffect(() => {
     const carregarManobras = async () => {
@@ -29,6 +29,7 @@ const ManobrasScreen = () => {
         const data = await buscarManobras();
         if (data) {
           setManobras(data);
+          setManobrasFiltradas(data); // Inicializa as manobras filtradas
         }
       } catch (error) {
         console.error("Erro ao carregar manobras:", error);
@@ -39,6 +40,18 @@ const ManobrasScreen = () => {
 
     carregarManobras();
   }, []);
+
+  const filtrarManobras = (texto) => {
+    setManobraBuscada(texto);
+    if (texto === "") {
+      setManobrasFiltradas(manobras);
+    } else {
+      const filtrado = manobras.filter((manobra) =>
+        manobra.nome.toLowerCase().includes(texto.toLowerCase())
+      );
+      setManobrasFiltradas(filtrado);
+    }
+  };
 
   if (loading) {
     return (
@@ -54,24 +67,33 @@ const ManobrasScreen = () => {
 
       <View style={styles.filterSection}>
         <Text style={styles.filterSectionText}>
-          Manobras cadastradas: {manobras.length}
+          Manobras cadastradas: {manobrasFiltradas.length}
         </Text>
 
         <View style={styles.searchContainer}>
           <TextInput
             mode="outlined"
             placeholder="Pesquisar"
+            value={manobraBuscada}
+            onChangeText={filtrarManobras}
             left={<TextInput.Icon icon="magnify" />}
             style={styles.searchInput}
             placeholderTextColor="#999"
-            theme={{ colors: { background: "#f5f5f5" } }}
+            theme={{
+              colors: {
+                primary: '#6200ee',
+                background: "#f5f5f5",
+                text: "#333",
+                placeholder: "#999"
+              }
+            }}
           />
         </View>
       </View>
 
-      {manobras.length > 0 ? (
+      {manobrasFiltradas.length > 0 ? (
         <FlatList
-          data={manobras}
+          data={manobrasFiltradas}
           renderItem={({ item }) => <ManobraCard item={item} />}
           keyExtractor={(item) => item._id.toString()}
           contentContainerStyle={styles.listContent}
@@ -83,7 +105,9 @@ const ManobrasScreen = () => {
             source={require("../assets/icons/placeholder_skater.png")}
           />
           <Text style={styles.emptyText}>
-            Adicione Uma Manobra a Um Obstaculo
+            {manobraBuscada
+              ? "Nenhuma manobra encontrada"
+              : "Adicione Uma Manobra a Um Obstaculo"}
           </Text>
           <TouchableOpacity
             style={{ marginTop: 40 }}
@@ -96,59 +120,5 @@ const ManobrasScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  emptyImage: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
-  },
-  emptyText: {
-    fontSize: 18,
-    color: "#000",
-    textAlign: "center",
-  },
-  listContent: {
-    paddingBottom: 20,
-  },
-  filterSection: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 15,
-    backgroundColor: "#fff",
-  },
-  filterSectionText: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#333",
-  },
-    searchContainer: {
- 
-    display: "flex",
-    width: "40%"
-  },
-  searchInput: {
-    backgroundColor: "#f5f5f5",
-    height: 40,
-  },
-});
 
 export default ManobrasScreen;

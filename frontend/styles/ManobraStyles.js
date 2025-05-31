@@ -1,14 +1,11 @@
 import { StyleSheet, Platform, StatusBar } from "react-native";
 
 
-const HomeStyles = StyleSheet.create({
+const ManobraStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-  },
-  listContent: {
-    padding: 16,
   },
   loadingContainer: {
     flex: 1,
@@ -31,11 +28,31 @@ const HomeStyles = StyleSheet.create({
     color: "#000",
     textAlign: "center",
   },
-  addButtonContainer: {
-   position: "absolute",
-    top: 630,
-    right: 30,
+  listContent: {
+    paddingBottom: 20,
+  },
+  filterSection: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 15,
+    backgroundColor: "#fff",
+  },
+  filterSectionText: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#333",
+  },
+    searchContainer: {
+ 
+    display: "flex",
+    width: "40%"
+  },
+  searchInput: {
+    backgroundColor: "#f5f5f5",
+    height: 40,
   },
 });
 
-export default HomeStyles;
+export default ManobraStyles;

@@ -1,7 +1,6 @@
 import { StyleSheet, Platform, StatusBar } from "react-native";
 
-
-const HomeStyles = StyleSheet.create({
+const ObstaculoStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -31,11 +30,18 @@ const HomeStyles = StyleSheet.create({
     color: "#000",
     textAlign: "center",
   },
+  backSection: {
+    marginTop: 40,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
   addButtonContainer: {
-   position: "absolute",
+    position: "absolute",
     top: 630,
     right: 30,
+    
   },
 });
 
-export default HomeStyles;
+export default ObstaculoStyles;

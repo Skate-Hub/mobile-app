@@ -18,7 +18,8 @@ import { useRoute } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 import { buscarManobrasObstaculo } from "../services/ManobrasService";
 import ManobraCard from "../components/cards/ManobraItem";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import styles from "../styles/ObstaculoStyles";
 
 const Obstaculo = () => {
   const [manobras, setManobras] = useState([]);
@@ -60,12 +61,18 @@ const Obstaculo = () => {
       <Header />
 
       {manobras.length > 0 ? (
-        <FlatList
-          data={manobras}
-          renderItem={({ item }) => <ManobraCard item={item} />}
-          keyExtractor={(item) => item._id.toString()}
-          contentContainerStyle={styles.listContent}
-        />
+        <View>
+          <FlatList
+            data={manobras}
+            renderItem={({ item }) => <ManobraCard item={item} />}
+            keyExtractor={(item) => item._id.toString()}
+            contentContainerStyle={styles.listContent}
+          />
+
+          <TouchableOpacity style={styles.addButtonContainer}>
+            <Ionicons name="add-circle" size={60} color="#000" />
+          </TouchableOpacity>
+        </View>
       ) : (
         <View style={styles.emptyContainer}>
           <Image
@@ -91,44 +98,5 @@ const Obstaculo = () => {
     </SafeAreaView>
   );
 };
-
-//lembrar de passar a estilização do card de obstaculos pra o arquivo do componente
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-  },
-  listContent: {
-    padding: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  emptyImage: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
-  },
-  emptyText: {
-    fontSize: 18,
-    color: "#000",
-    textAlign: "center",
-  },
-  backSection: {
-    marginTop: 40,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-  },
-});
 
 export default Obstaculo;

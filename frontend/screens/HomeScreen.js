@@ -5,42 +5,48 @@ import {
   View,
   Text,
   FlatList,
-  StyleSheet,
-  Platform,
-  StatusBar,
   ActivityIndicator,
-  ScrollView,
   Image,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import ObstaculoCard from "../components/cards/ObstacleItem";
 import { buscarObstaculos } from "../services/obstaculosService";
 import { Ionicons } from "@expo/vector-icons";
 import Header from "../components/estrutura/Header";
 import { useNavigation } from "@react-navigation/native";
+import styles from "../styles/HomeStyles";
+import AddObstaculoModal from "../components/modals/addObstaculo";
 
 const HomeScreen = () => {
   const [obstaculos, setObstaculos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [abrirAddObstaculoModal, setAbrirAddObstaculoModal] = useState(false);
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const carregarObstaculos = async () => {
-      try {
-        const data = await buscarObstaculos();
-        if (data) {
-          setObstaculos(data);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar obstáculos:", error);
-      } finally {
-        setLoading(false);
+  const carregarObstaculos = async () => {
+    try {
+      setLoading(true);
+      const data = await buscarObstaculos();
+      if (data) {
+        setObstaculos(data);
       }
-    };
+    } catch (error) {
+      console.error("Erro ao carregar obstáculos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     carregarObstaculos();
   }, []);
+
+  const handleModalClose = () => {
+    setAbrirAddObstaculoModal(false);
+    carregarObstaculos();
+  };
 
   if (loading) {
     return (
@@ -52,14 +58,24 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header/>
+      <Header />
       {obstaculos.length > 0 ? (
-        <FlatList
-          data={obstaculos}
-          renderItem={({ item }) => <ObstaculoCard item={item} navigation={navigation} />}
-          keyExtractor={(item) => item._id.toString()}
-          contentContainerStyle={styles.listContent}
-        />
+        <View>
+          <FlatList
+            data={obstaculos}
+            renderItem={({ item }) => (
+              <ObstaculoCard item={item} navigation={navigation} />
+            )}
+            keyExtractor={(item) => item._id.toString()}
+            contentContainerStyle={styles.listContent}
+          />
+          <TouchableOpacity
+            style={styles.addButtonContainer}
+            onPress={() => setAbrirAddObstaculoModal(true)}
+          >
+            <Ionicons name="add-circle" size={60} color="#000" />
+          </TouchableOpacity>
+        </View>
       ) : (
         <View style={styles.emptyContainer}>
           <Image
@@ -73,44 +89,22 @@ const HomeScreen = () => {
         </View>
       )}
 
-
-
+      <Modal
+        visible={abrirAddObstaculoModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAbrirAddObstaculoModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <AddObstaculoModal
+              onClose={handleModalClose}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
-
-//lembrar de passar a estilização do card de obstaculos pra o arquivo do componente
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-  },
-  listContent: {
-    padding: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  emptyImage: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
-  },
-  emptyText: {
-    fontSize: 18,
-    color: "#000",
-    textAlign: "center",
-  },
-  
-});
 
 export default HomeScreen;

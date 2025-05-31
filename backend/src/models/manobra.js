@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+
 const manobraSchema = new mongoose.Schema(
   {
     nome: { type: String, required: true },

@@ -1,4 +1,3 @@
-// screens/Home.js
 import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
@@ -9,18 +8,36 @@ import {
   Platform,
   StatusBar,
   ActivityIndicator,
-  ScrollView,
   Image,
   TouchableOpacity,
 } from "react-native";
-import ObstaculoCard from "../components/ObstacleItem";
-import { buscarObstaculos } from "../services/obstaculosService";
-import { Ionicons } from "@expo/vector-icons";
-import Header from "../components/Header";
+import ManobraCard from "../components/cards/ManobraItem";
+import { buscarManobras } from "../services/ManobrasService";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Header from "../components/estrutura/Header";
+import { useNavigation } from "@react-navigation/native";
 
 const ManobrasScreen = () => {
-  const [obstaculos, setObstaculos] = useState([]);
+  const navigation = useNavigation();
+  const [manobras, setManobras] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const carregarManobras = async () => {
+      try {
+        const data = await buscarManobras();
+        if (data) {
+          setManobras(data);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar manobras:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarManobras();
+  }, []);
 
   if (loading) {
     return (
@@ -31,16 +48,49 @@ const ManobrasScreen = () => {
   }
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       <Header />
-      <View>
-        <Text>Manobras</Text>
+
+      <View style={styles.filterSection}>
+        <Text style={styles.filterSectionText}>
+          Manobras cadastradas: {manobras.length}{" "}
+        </Text>
+        <Text style={styles.filterSectionText}>
+          Filtrar:{" "}
+          <TouchableOpacity>
+            <MaterialCommunityIcons name="filter" size={20} />
+          </TouchableOpacity>
+        </Text>
       </View>
+
+      {manobras.length > 0 ? (
+        <FlatList
+          data={manobras}
+          renderItem={({ item }) => <ManobraCard item={item} />}
+          keyExtractor={(item) => item._id.toString()}
+          contentContainerStyle={styles.listContent}
+        />
+      ) : (
+          <View style={styles.emptyContainer}>
+            <Image
+              style={styles.emptyImage}
+              source={require("../assets/icons/placeholder_skater.png")}
+            />
+            <Text style={styles.emptyText}>
+              Adicione Uma Manobra a Um Obstaculo
+            </Text>
+            <TouchableOpacity
+              style={{ marginTop: 40 }}
+              onPress={() => navigation.navigate("Home")}
+            >
+              <MaterialCommunityIcons name="plus-circle" size={60} color="#000" />
+            </TouchableOpacity>
+          </View>
+      )}
     </SafeAreaView>
   );
 };
 
-//lembrar de passar a estilização do card de obstaculos pra o arquivo do componente
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -67,6 +117,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#000",
     textAlign: "center",
+  },
+  listContent: {
+    paddingBottom: 20,
+  },
+  filterSection: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 15,
+  },
+  filterSectionText: {
+    fontSize: 15,
+    fontWeight: 500,
   },
 });
 

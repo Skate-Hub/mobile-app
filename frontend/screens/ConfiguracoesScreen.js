@@ -13,10 +13,10 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import ObstaculoCard from "../components/ObstacleItem";
+import ObstaculoCard from "../components/cards/ObstacleItem";
 import { buscarObstaculos } from "../services/obstaculosService";
 import { Ionicons } from "@expo/vector-icons";
-import Header from "../components/Header";
+import Header from "../components/estrutura/Header";
 
 const ConfiguraçõesScreen = () => {
   const [obstaculos, setObstaculos] = useState([]);

@@ -13,14 +13,36 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import ObstaculoCard from "../components/ObstacleItem";
-import { buscarObstaculos } from "../services/obstaculosService";
-import { Ionicons } from "@expo/vector-icons";
-import Header from "../components/Header";
+import Header from "../components/estrutura/Header";
+import { useRoute } from "@react-navigation/native";
+import { buscarManobrasObstaculo } from "../services/ManobrasService";
+import ManobraCard from "../components/cards/ManobraItem";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const Obstaculo = () => {
-  const [obstaculos, setObstaculos] = useState([]);
+const Obstaculo = (item) => {
+  const [manobras, setManobras] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const route = useRoute();
+  const id = route.params.id;
+
+  //buscar manobras atreladas ao id do item passado
+  useEffect(() => {
+    const carregarManobrasObstaculo = async () => {
+      try {
+        const data = await buscarManobrasObstaculo();
+        if (data) {
+          setManobras(data);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar obstáculos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarManobrasObstaculo();
+  }, []);
 
   if (loading) {
     return (
@@ -30,13 +52,36 @@ const Obstaculo = () => {
     );
   }
 
-  return <SafeAreaView>
-    <View>
-        <Text>
-            obstaculos
-        </Text>
-    </View>
-  </SafeAreaView>;
+  return (
+    <SafeAreaView style={styles.container}>
+      <Header />
+
+      {manobras.length > 0 ? (
+        <FlatList
+          data={manobras}
+          renderItem={({ item }) => <ManobraCard item={item} />}
+          keyExtractor={(item) => item._id.toString()}
+          contentContainerStyle={styles.listContent}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Image
+            style={styles.emptyImage}
+            source={require("../assets/icons/placeholder_skater.png")}
+          />
+          <Text style={styles.emptyText}>
+            Adicione Uma Manobra a Um Obstaculo
+          </Text>
+          <TouchableOpacity
+            style={{ marginTop: 40 }}
+            onPress={() => navigation.navigate("Home")}
+          >
+            <MaterialCommunityIcons name="plus-circle" size={60} color="#000" />
+          </TouchableOpacity>
+        </View>
+      )}
+    </SafeAreaView>
+  );
 };
 
 //lembrar de passar a estilização do card de obstaculos pra o arquivo do componente

@@ -5,11 +5,11 @@ export const buscarObstaculos = async () => {
     const response = await fetch(`${apiUrl}/obstaculos`);
     
     if (!response.ok) {
-      throw new Error("Erro na resposta da API");
+      throw new Error("Erro na resposta da API: buscarObstaculos");
     }
 
     const data = await response.json();
-    return data;
+    return data;    
 
   } catch (err) {
     console.error("Erro ao buscar obstáculos:", err);

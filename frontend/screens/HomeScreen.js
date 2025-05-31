@@ -13,14 +13,17 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import ObstaculoCard from "../components/ObstacleItem";
+import ObstaculoCard from "../components/cards/ObstacleItem";
 import { buscarObstaculos } from "../services/obstaculosService";
 import { Ionicons } from "@expo/vector-icons";
-import Header from "../components/Header";
+import Header from "../components/estrutura/Header";
+import { useNavigation } from "@react-navigation/native";
 
 const HomeScreen = () => {
   const [obstaculos, setObstaculos] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     const carregarObstaculos = async () => {
@@ -50,10 +53,10 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Header/>
-      {obstaculos.lenght > 0 ? (
+      {obstaculos.length > 0 ? (
         <FlatList
           data={obstaculos}
-          renderItem={({ item }) => <ObstaculoCard item={item} />}
+          renderItem={({ item }) => <ObstaculoCard item={item} navigation={navigation} />}
           keyExtractor={(item) => item._id.toString()}
           contentContainerStyle={styles.listContent}
         />

@@ -2,7 +2,7 @@ const obstaculoService = require("../services/obstaculoService");
 
 const criarObstaculo = async (req, res) => {
   try {
-    const novoObstaculo = await obstaculoService.criarObstaculo(req.body);
+    const novoObstaculo = await obstaculoService.criarObstaculo(req.body.nome);
     res.status(201).json(novoObstaculo);
   } catch (err) {
     res.status(500).json({ message: err.message });

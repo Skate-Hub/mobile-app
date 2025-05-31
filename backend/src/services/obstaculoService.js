@@ -12,7 +12,7 @@ const listarObstaculos = async () => {
 const atualizarObstaculoNome = async (id, novoNome, iconKey) => {
   const resultado = await Obstaculo.updateOne(
     { _id: id },
-    { $set: { nome: novoNome, iconKey: iconKey } }
+    { $set: { nome: novoNome } }
   );
   return resultado; // resultado contém info como matchedCount, modifiedCount
 };

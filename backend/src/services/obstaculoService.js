@@ -1,7 +1,7 @@
 const Obstaculo = require("../models/obstaculo");
 
-const criarObstaculo = async (data) => {
-  const obstaculo = new Obstaculo(data);
+const criarObstaculo = async (nome) => {
+  const obstaculo = new Obstaculo(nome);
   return await obstaculo.save();
 };
 

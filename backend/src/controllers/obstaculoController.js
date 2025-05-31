@@ -1,11 +1,10 @@
 const obstaculoService = require("../services/obstaculoService");
 
 const criarObstaculo = async (req, res) => {
-
-  const nome = req.body.nome
+  const nome = req.body.nome;
 
   try {
-    const novoObstaculo = await obstaculoService.criarObstaculo(nome);
+    const novoObstaculo = await obstaculoService.criarObstaculo({ nome });
     res.status(201).json(novoObstaculo);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -26,7 +25,11 @@ const atualizarObstaculoNome = async (req, res) => {
     const id = req.params.id;
     const novoNome = req.body.novoNome;
     const iconKey = req.body.iconKey;
-    const update = await obstaculoService.atualizarObstaculoNome(id, novoNome, iconKey);
+    const update = await obstaculoService.atualizarObstaculoNome(
+      id,
+      novoNome,
+      iconKey
+    );
     if (update.modifiedCount == 1) {
       return res
         .status(200)
@@ -54,5 +57,4 @@ module.exports = {
   listarObstaculos,
   atualizarObstaculoNome,
   deletarObstaculo,
-  
 };

@@ -5,7 +5,7 @@ const listarManobras = async (req, res) => {
   res.json(lista);
 };
 
-const buscarManobrasObstaculo = async () => {
+const buscarManobrasObstaculo = async (req, res) => {
   const id = req.params.id;
 
   try {

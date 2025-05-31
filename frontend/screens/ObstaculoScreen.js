@@ -15,22 +15,25 @@ import {
 } from "react-native";
 import Header from "../components/estrutura/Header";
 import { useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { buscarManobrasObstaculo } from "../services/ManobrasService";
 import ManobraCard from "../components/cards/ManobraItem";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const Obstaculo = (item) => {
+const Obstaculo = () => {
   const [manobras, setManobras] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const route = useRoute();
   const id = route.params.id;
 
+  const navigation = useNavigation();
+
   //buscar manobras atreladas ao id do item passado
   useEffect(() => {
     const carregarManobrasObstaculo = async () => {
       try {
-        const data = await buscarManobrasObstaculo();
+        const data = await buscarManobrasObstaculo(id);
         if (data) {
           setManobras(data);
         }
@@ -70,13 +73,18 @@ const Obstaculo = (item) => {
             source={require("../assets/icons/placeholder_skater.png")}
           />
           <Text style={styles.emptyText}>
-            Adicione Uma Manobra a Um Obstaculo
+            Esse obstaculo ainda nao tem nenhuma manobra cadastrada!
           </Text>
           <TouchableOpacity
-            style={{ marginTop: 40 }}
-            onPress={() => navigation.navigate("Home")}
+            style={styles.backSection}
+            onPress={() => navigation.navigate("HomeStack")}
           >
-            <MaterialCommunityIcons name="plus-circle" size={60} color="#000" />
+            <MaterialCommunityIcons
+              name="chevron-left"
+              size={60}
+              color="#000"
+            />
+            <Text style={{ fontSize: 30, fontWeight: 500 }}>Voltar</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -114,6 +122,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#000",
     textAlign: "center",
+  },
+  backSection: {
+    marginTop: 40,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
 

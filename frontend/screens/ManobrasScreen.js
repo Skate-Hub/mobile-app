@@ -16,6 +16,7 @@ import { buscarManobras } from "../services/ManobrasService";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Header from "../components/estrutura/Header";
 import { useNavigation } from "@react-navigation/native";
+import { TextInput } from "react-native-paper";
 
 const ManobrasScreen = () => {
   const navigation = useNavigation();
@@ -53,14 +54,19 @@ const ManobrasScreen = () => {
 
       <View style={styles.filterSection}>
         <Text style={styles.filterSectionText}>
-          Manobras cadastradas: {manobras.length}{" "}
+          Manobras cadastradas: {manobras.length}
         </Text>
-        <Text style={styles.filterSectionText}>
-          Filtrar:{" "}
-          <TouchableOpacity>
-            <MaterialCommunityIcons name="filter" size={20} />
-          </TouchableOpacity>
-        </Text>
+
+        <View style={styles.searchContainer}>
+          <TextInput
+            mode="outlined"
+            placeholder="Pesquisar"
+            left={<TextInput.Icon icon="magnify" />}
+            style={styles.searchInput}
+            placeholderTextColor="#999"
+            theme={{ colors: { background: "#f5f5f5" } }}
+          />
+        </View>
       </View>
 
       {manobras.length > 0 ? (
@@ -71,21 +77,21 @@ const ManobrasScreen = () => {
           contentContainerStyle={styles.listContent}
         />
       ) : (
-          <View style={styles.emptyContainer}>
-            <Image
-              style={styles.emptyImage}
-              source={require("../assets/icons/placeholder_skater.png")}
-            />
-            <Text style={styles.emptyText}>
-              Adicione Uma Manobra a Um Obstaculo
-            </Text>
-            <TouchableOpacity
-              style={{ marginTop: 40 }}
-              onPress={() => navigation.navigate("Home")}
-            >
-              <MaterialCommunityIcons name="plus-circle" size={60} color="#000" />
-            </TouchableOpacity>
-          </View>
+        <View style={styles.emptyContainer}>
+          <Image
+            style={styles.emptyImage}
+            source={require("../assets/icons/placeholder_skater.png")}
+          />
+          <Text style={styles.emptyText}>
+            Adicione Uma Manobra a Um Obstaculo
+          </Text>
+          <TouchableOpacity
+            style={{ marginTop: 40 }}
+            onPress={() => navigation.navigate("Home")}
+          >
+            <MaterialCommunityIcons name="plus-circle" size={60} color="#000" />
+          </TouchableOpacity>
+        </View>
       )}
     </SafeAreaView>
   );
@@ -125,11 +131,23 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     padding: 15,
+    backgroundColor: "#fff",
   },
   filterSectionText: {
     fontSize: 15,
-    fontWeight: 500,
+    fontWeight: "500",
+    color: "#333",
+  },
+    searchContainer: {
+ 
+    display: "flex",
+    width: "40%"
+  },
+  searchInput: {
+    backgroundColor: "#f5f5f5",
+    height: 40,
   },
 });
 

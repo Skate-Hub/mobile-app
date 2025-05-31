@@ -51,5 +51,5 @@ module.exports = {
   listarObstaculos,
   atualizarObstaculoNome,
   deletarObstaculo,
-  buscarManobrasObstaculo
+  
 };

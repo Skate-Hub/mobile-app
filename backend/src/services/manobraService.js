@@ -6,6 +6,24 @@ const listarManobras = async () => {
   return manobras;
 };
 
+const buscarManobra = async (idManobra) => {
+  try {
+    const obstaculo = await Obstaculo.findOne({ "manobras._id": idManobra });
+
+    if (!obstaculo) {
+      console.log(
+        `Manobra com ID ${idManobra} não encontrada em nenhum obstáculo.`
+      );
+      return null;
+    }
+
+    return obstaculo.manobras.id(idManobra);
+  } catch (error) {
+    console.error("Erro ao buscar manobra:", error);
+    return null;
+  }
+};
+
 const buscarManobrasObstaculo = async (id) => {
   try {
     const obstaculo = await Obstaculo.findById(id);
@@ -103,4 +121,5 @@ module.exports = {
   atualizarManobrasStatus,
   deletarManobras,
   buscarManobrasObstaculo,
+  buscarManobra,
 };

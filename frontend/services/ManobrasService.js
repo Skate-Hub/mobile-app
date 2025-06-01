@@ -19,6 +19,25 @@ export const buscarManobras = async () => {
   }
 };
 
+export const buscarManobra = async () => {
+   try {
+    const response = await fetch(`${apiUrl}/manobras/manobra/${id}`);
+
+    if (!response) {
+      throw new Error("Erro na resposta da API: buscarManobra");
+    }
+
+    const data = await response.json();
+
+    return data;
+  } catch (err) {
+    if (err) {
+      console.error("erro ao buscar manobra: ", err);
+      return "erro ao buscar manobra";
+    }
+  }
+};
+
 export const buscarManobrasObstaculo = async (id) => {
   try {
     const response = await fetch(`${apiUrl}/manobras/manobrasObstaculo/${id}`);
@@ -38,9 +57,18 @@ export const buscarManobrasObstaculo = async (id) => {
   }
 };
 
-export const buscarObservacoes = async () => {
+export const atualizarObservacoes = async (idManobra, observacoes) => {
   try {
-    const response = await fetch(`${apiUrl}/manobras/obs`);
+    const response = await fetch(
+      `${apiUrl}/manobras/${idManobra}/observacoes`,
+      {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ observacoes }),
+      }
+    );
 
     if (!response) {
       throw new Error("Erro na resposta da API: buscarObservacoes");

@@ -18,6 +18,7 @@ import { useNavigation } from "@react-navigation/native";
 import styles from "../styles/HomeStyles";
 import AddObstaculoModal from "../components/modals/addObstaculo";
 
+
 const HomeScreen = () => {
   const [obstaculos, setObstaculos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,7 @@ const HomeScreen = () => {
 
   const navigation = useNavigation();
 
+  
   const carregarObstaculos = async () => {
     try {
       setLoading(true);
@@ -97,9 +99,7 @@ const HomeScreen = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <AddObstaculoModal
-              onClose={handleModalClose}
-            />
+            <AddObstaculoModal onClose={handleModalClose} />
           </View>
         </View>
       </Modal>

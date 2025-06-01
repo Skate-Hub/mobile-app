@@ -8,6 +8,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "./screens/HomeScreen";
 import ManobrasScreen from "./screens/ManobrasScreen";
 import ObstaculoScreen from "./screens/ObstaculoScreen";
+import NotesScreen from "./screens/NotesScreen";
 import ConfiguraçõesScreen from "./screens/ConfiguracoesScreen";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -19,20 +20,23 @@ const Stack = createNativeStackNavigator();
 // stack navigator para as telas da Home
 function HomeStack() {
   return (
-
-      <Stack.Navigator>
-        <Stack.Screen
-          name="HomeStack"
-          component={HomeScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Obstaculo"
-          component={ObstaculoScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-
+    <Stack.Navigator>
+      <Stack.Screen
+        name="HomeStack"
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Obstaculo"
+        component={ObstaculoScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Notes"
+        component={NotesScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
   );
 }
 

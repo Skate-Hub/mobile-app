@@ -5,11 +5,7 @@ import {
   View,
   Text,
   FlatList,
-  StyleSheet,
-  Platform,
-  StatusBar,
   ActivityIndicator,
-  ScrollView,
   Image,
   TouchableOpacity,
 } from "react-native";

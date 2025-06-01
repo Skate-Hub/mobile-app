@@ -29,7 +29,7 @@ const ManobrasScreen = () => {
         const data = await buscarManobras();
         if (data) {
           setManobras(data);
-          setManobrasFiltradas(data); // Inicializa as manobras filtradas
+          setManobrasFiltradas(data); 
         }
       } catch (error) {
         console.error("Erro ao carregar manobras:", error);

@@ -58,7 +58,7 @@ const adicionarObservacoesController = async (req, res) => {
   const { observacoes } = req.body;
 
   try {
-    const manobraAtualizada = await adicionarObservacoes(
+    const manobraAtualizada = await manobraService.adicionarObservacoes(
       observacoes,
       manobraId
     );

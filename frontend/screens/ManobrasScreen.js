@@ -94,7 +94,7 @@ const ManobrasScreen = () => {
       {manobrasFiltradas.length > 0 ? (
         <FlatList
           data={manobrasFiltradas}
-          renderItem={({ item }) => <ManobraCard item={item} />}
+          renderItem={({ item }) => <ManobraCard item={item} navigatonType={"tab"}/>}
           keyExtractor={(item) => item._id.toString()}
           contentContainerStyle={styles.listContent}
         />

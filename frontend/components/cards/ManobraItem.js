@@ -1,12 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-const ManobraCard = ({ item }) => {
-  const navigation = useNavigation();
-
+const ManobraCard = ({ item, onPress }) => {
   const getStatusConfig = () => {
     switch (item.status) {
       case "aprender":
@@ -34,15 +31,8 @@ const ManobraCard = ({ item }) => {
 
   const { color, icon } = getStatusConfig();
 
-  const handlePress = () => {
-    navigation.navigate("Home", {
-      screen: "Notes",
-      params: { id: item._id },
-    });
-  };
-
   return (
-    <TouchableOpacity style={styles.card} onPress={handlePress}>
+    <TouchableOpacity style={styles.card} onPress={() => onPress(item._id)}>
       <View style={styles.textContainer}>
         <Text style={styles.title}>{item.nome}</Text>
       </View>
@@ -54,7 +44,7 @@ const ManobraCard = ({ item }) => {
           style={styles.icon}
         />
         <Text style={[styles.statusText, { color }]}>
-          {item.status.toUpperCase()}
+          {item.status ? item.status.toUpperCase() : "N/A"}
         </Text>
       </View>
     </TouchableOpacity>

@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Image,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import Header from "../components/estrutura/Header";
 import { useRoute } from "@react-navigation/native";
@@ -16,10 +17,13 @@ import { buscarManobrasObstaculo } from "../services/ManobrasService";
 import ManobraCard from "../components/cards/ManobraItem";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import styles from "../styles/ObstaculoStyles";
+import NotesModal from "../components/modals/NotesModal";
 
 const Obstaculo = () => {
   const [manobras, setManobras] = useState([]);
+  const [idManobraSelecionada, setIdManobraselecionada] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [abrirNotesModal, setAbrirNotesModal] = useState(false);
 
   const route = useRoute();
   const id = route.params.id;
@@ -52,6 +56,16 @@ const Obstaculo = () => {
     );
   }
 
+  const handleAbrirNotesModal = (id) => {
+    setIdManobraselecionada(id);
+    setAbrirNotesModal(true);
+  };
+
+  const handleModalClose = () => {
+    setAbrirNotesModal(false);
+    setIdManobraselecionada(null);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Header />
@@ -60,7 +74,12 @@ const Obstaculo = () => {
         <View>
           <FlatList
             data={manobras}
-            renderItem={({ item }) => <ManobraCard item={item} />}
+            renderItem={({ item }) => (
+              <ManobraCard
+                item={item}
+                onPress={() => handleAbrirNotesModal(item._id)}
+              />
+            )}
             keyExtractor={(item) => item._id.toString()}
             contentContainerStyle={styles.listContent}
           />
@@ -91,6 +110,17 @@ const Obstaculo = () => {
           </TouchableOpacity>
         </View>
       )}
+      <Modal
+        visible={abrirNotesModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAbrirNotesModal(false)}
+      >
+        <NotesModal
+          onClose={handleModalClose}
+          idManobra={idManobraSelecionada}
+        />
+      </Modal>
     </SafeAreaView>
   );
 };

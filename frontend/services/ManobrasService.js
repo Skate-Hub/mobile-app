@@ -19,9 +19,9 @@ export const buscarManobras = async () => {
   }
 };
 
-export const buscarManobra = async () => {
+export const buscarManobra = async (idManobra) => {
    try {
-    const response = await fetch(`${apiUrl}/manobras/manobra/${id}`);
+    const response = await fetch(`${apiUrl}/manobras/manobra/${idManobra}`);
 
     if (!response) {
       throw new Error("Erro na resposta da API: buscarManobra");

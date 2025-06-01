@@ -8,7 +8,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "./screens/HomeScreen";
 import ManobrasScreen from "./screens/ManobrasScreen";
 import ObstaculoScreen from "./screens/ObstaculoScreen";
-import NotesScreen from "./screens/NotesScreen";
+import NotesScreen from "./components/modals/NotesModal";
 import ConfiguraçõesScreen from "./screens/ConfiguracoesScreen";
 
 import { Ionicons } from "@expo/vector-icons";
@@ -67,7 +67,7 @@ const App = () => {
               );
             },
           })}
-          r
+          
         >
           <Tab.Screen
             name="Home"
@@ -84,6 +84,7 @@ const App = () => {
             component={ConfiguraçõesScreen}
             options={{ headerShown: false }}
           />
+          
         </Tab.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

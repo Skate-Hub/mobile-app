@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
-import { buscarObstaculos, criarObstaculo } from "../../services/obstaculosService";
+import { criarObstaculo } from "../../services/obstaculosService";
 import { useState } from "react";
 
 const AddObstaculoModal = ({ onClose }) => {

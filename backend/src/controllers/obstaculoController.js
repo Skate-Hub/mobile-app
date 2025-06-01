@@ -52,9 +52,25 @@ const deletarObstaculo = async (req, res) => {
   }
 };
 
+const adicionarObservacoesController = async (req, res) => {
+  const { manobraId } = req.params;
+  const { observacoes } = req.body;
+
+  try {
+    const manobraAtualizada = await adicionarObservacoes(
+      observacoes,
+      manobraId
+    );
+    res.status(200).json(manobraAtualizada);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   criarObstaculo,
   listarObstaculos,
   atualizarObstaculoNome,
   deletarObstaculo,
+  adicionarObservacoesController
 };

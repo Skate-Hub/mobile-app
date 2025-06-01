@@ -6,22 +6,22 @@ const listarManobras = async () => {
   return manobras;
 };
 
-const buscarManobrasObstaculo = async (id)=>{
-  try{
-  const obstaculo = await Obstaculo.findById(id)
+const buscarManobrasObstaculo = async (id) => {
+  try {
+    const obstaculo = await Obstaculo.findById(id);
 
-  if(!obstaculo){
-    throw new Error('Obstaculo nao encontrado');
+    if (!obstaculo) {
+      throw new Error("Obstaculo nao encontrado");
+    }
+
+    return obstaculo.manobras || [];
+  } catch (err) {
+    if (err) {
+      console.error("erro ao buscar manobras: ", err);
+      return [];
+    }
   }
-  
-  return obstaculo.manobras || [];
-}catch(err){
-  if (err){
-    console.error('erro ao buscar manobras: ', err);
-    return []
-  }
-}
-}
+};
 
 const filtrarManobrasStatus = async (status) => {
   const obstaculos = await Obstaculo.find();
@@ -53,19 +53,43 @@ const deletarManobras = async (manobraId) => {
   const obstaculos = await Obstaculo.find();
   for (const obstaculo of obstaculos) {
     const index = obstaculo.manobras.findIndex((manobra) => {
-     return manobra._id.toString() === manobraId;
+      return manobra._id.toString() === manobraId;
     });
 
     if (index !== -1) {
       obstaculo.manobras.splice(index, 1);
       await obstaculo.save();
-      return { mensagem: "manobra deletada com sucesso", obstaculo: obstaculo.nome};
+      return {
+        mensagem: "manobra deletada com sucesso",
+        obstaculo: obstaculo.nome,
+      };
     }
   }
   throw new Error("manobra nao encontrada");
 };
 
-const adicionarObservacoes = async (texto, manobraId) => {};
+const adicionarObservacoes = async (texto, manobraId) => {
+  try {
+    const obstaculo = await Obstaculo.findOne({ "manobras._id": manobraId });
+
+    if (!obstaculo) {
+      throw new Error("Manobra não encontrada.");
+    }
+
+    const manobra = obstaculo.manobras.id(manobraId);
+    if (!manobra) {
+      throw new Error("Manobra não encontrada no obstáculo.");
+    }
+
+    manobra.observacoes = texto;
+
+    await obstaculo.save();
+
+    return manobra;
+  } catch (error) {
+    throw error;
+  }
+};
 
 const adicionarAnexosObservacoes = async () => {};
 
@@ -78,5 +102,5 @@ module.exports = {
   atualizarManobrasNome,
   atualizarManobrasStatus,
   deletarManobras,
-  buscarManobrasObstaculo
+  buscarManobrasObstaculo,
 };

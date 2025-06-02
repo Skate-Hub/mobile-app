@@ -1,7 +1,7 @@
 const Obstaculo = require("../models/obstaculo");
 
 const adicionarAnexoService = async (obstaculoId, manobraId, novoAnexo) => {
-  console.log("Obstáculo encontrado:", obstaculo);
+  console.log("Obstáculo encontrado:", obstaculoId);
   console.log("Novo anexo:", novoAnexo); 
   try {
     const obstaculo = await Obstaculo.findOneAndUpdate(

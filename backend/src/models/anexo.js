@@ -2,10 +2,18 @@ const mongoose = require("mongoose");
 
 const anexoSchema = new mongoose.Schema(
   {
+
+    //firebase storage
     url: {
       type: String,
       required: true,
     },
+    caminhoFirebase: {
+        type: String,
+        required: true
+    },
+
+     //metadados do arquivo
     tipo: {
       type: String,
       enum: ["imagem", "video"],
@@ -27,6 +35,7 @@ const anexoSchema = new mongoose.Schema(
       altura: { type: Number },
       duracao: { type: Number },
     },
+    
   },
   {
     timestamps: true,

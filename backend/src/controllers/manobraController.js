@@ -40,7 +40,7 @@ const filtrarManobrasStatus = async (req, res) => {
 };
 
 const atualizarManobrasStatusController = async (req, res) => {
-  const manobraId = req.params.id;
+  const manobraId = req.params.manobraId;
   const novoStatus = req.body.novoStatus;
 
   try {

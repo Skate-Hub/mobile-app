@@ -28,7 +28,6 @@ const removerAnexoService = async (obstaculoId, manobraId, anexoId) => {
   try {
     const obstaculo = await Obstaculo.findOne({
       _id: obstaculoId,
-      "manobras._id": manobraId,
     });
 
     if (!obstaculo) {

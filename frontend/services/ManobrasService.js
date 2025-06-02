@@ -84,3 +84,35 @@ export const atualizarObservacoes = async (idManobra, observacoes) => {
     }
   }
 };
+
+export const adicionarAnexo = async(obstaculoId, manobraId, anexo) => {
+  const response = await fetch(`${apiUrl}/anexos/obstaculo/${obstaculoId}/manobra/${manobraId}/anexo`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ anexo }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao criar obstáculo");
+  }
+
+  return await response.json();
+}
+
+export const atualizarStatusManobra = async (novoStatus, manobraId) => {
+  const response = await fetch(`${apiUrl}/manobras/status/${manobraId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ novoStatus }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao criar obstáculo");
+  }
+
+  return await response.json();
+}

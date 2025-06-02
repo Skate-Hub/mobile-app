@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Image,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import ManobraCard from "../components/cards/ManobraItem";
 import { buscarManobras } from "../services/ManobrasService";
@@ -15,6 +16,7 @@ import Header from "../components/estrutura/Header";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput } from "react-native-paper";
 import styles from "../styles/ManobraStyles";
+import NotesModal from "../components/modals/NotesModal";
 
 const ManobrasScreen = () => {
   const navigation = useNavigation();
@@ -22,6 +24,8 @@ const ManobrasScreen = () => {
   const [manobrasFiltradas, setManobrasFiltradas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [manobraBuscada, setManobraBuscada] = useState("");
+  const [abrirNotesModal, setAbrirNotesModal] = useState(false);
+  const [idManobraSelecionada, setIdManobraselecionada] = useState([])
 
   useEffect(() => {
     const carregarManobras = async () => {
@@ -29,7 +33,7 @@ const ManobrasScreen = () => {
         const data = await buscarManobras();
         if (data) {
           setManobras(data);
-          setManobrasFiltradas(data); 
+          setManobrasFiltradas(data);
         }
       } catch (error) {
         console.error("Erro ao carregar manobras:", error);
@@ -40,6 +44,16 @@ const ManobrasScreen = () => {
 
     carregarManobras();
   }, []);
+
+  const handleAbrirNotesModal = (id) => {
+    setIdManobraselecionada(id);
+    setAbrirNotesModal(true);
+  };
+
+  const handleModalClose = () => {
+    setAbrirNotesModal(false);
+    setIdManobraselecionada(null);
+  };
 
   const filtrarManobras = (texto) => {
     setManobraBuscada(texto);
@@ -81,11 +95,11 @@ const ManobrasScreen = () => {
             placeholderTextColor="#999"
             theme={{
               colors: {
-                primary: '#6200ee',
+                primary: "#6200ee",
                 background: "#f5f5f5",
                 text: "#333",
-                placeholder: "#999"
-              }
+                placeholder: "#999",
+              },
             }}
           />
         </View>
@@ -94,7 +108,9 @@ const ManobrasScreen = () => {
       {manobrasFiltradas.length > 0 ? (
         <FlatList
           data={manobrasFiltradas}
-          renderItem={({ item }) => <ManobraCard item={item} navigatonType={"tab"}/>}
+          renderItem={({ item }) => (
+            <ManobraCard item={item} onPress={handleAbrirNotesModal} />
+          )}
           keyExtractor={(item) => item._id.toString()}
           contentContainerStyle={styles.listContent}
         />
@@ -117,6 +133,17 @@ const ManobrasScreen = () => {
           </TouchableOpacity>
         </View>
       )}
+      <Modal
+        visible={abrirNotesModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAbrirNotesModal(false)}
+      >
+        <NotesModal
+          onClose={handleModalClose}
+          idManobra={idManobraSelecionada}
+        />
+      </Modal>
     </SafeAreaView>
   );
 };

@@ -13,13 +13,8 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import ObstaculoCard from "../components/cards/ObstacleItem";
-import { buscarObstaculos } from "../services/obstaculosService";
-import { Ionicons } from "@expo/vector-icons";
-import Header from "../components/estrutura/Header";
 
 const ConfiguraçõesScreen = () => {
-  const [obstaculos, setObstaculos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   if (loading) {
@@ -30,45 +25,25 @@ const ConfiguraçõesScreen = () => {
     );
   }
 
-  return <SafeAreaView>
-    <View>
-        <Text>
-            Manobras
-        </Text>
-    </View>
-  </SafeAreaView>;
+  return (
+    <SafeAreaView>
+      <View>
+        <Text>Manobras</Text>
+      </View>
+    </SafeAreaView>
+  );
 };
 
-//lembrar de passar a estilização do card de obstaculos pra o arquivo do componente
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
-  listContent: {
-    padding: 16,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  emptyImage: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
-  },
-  emptyText: {
-    fontSize: 18,
-    color: "#000",
-    textAlign: "center",
   },
 });
 

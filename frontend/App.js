@@ -50,8 +50,8 @@ const App = () => {
             tabBarIcon: ({ color, size }) => {
               let iconName;
 
-              if (route.name === "Home") {
-                iconName = "home";
+              if (route.name === "Obstaculos") {
+                iconName = "cube-outline";
               } else if (route.name === "Manobras") {
                 iconName = "skateboard";
               } else if (route.name === "Configuracoes") {
@@ -67,10 +67,9 @@ const App = () => {
               );
             },
           })}
-          
         >
           <Tab.Screen
-            name="Home"
+            name="Obstaculos"
             component={HomeStack}
             options={{ headerShown: false }}
           />
@@ -84,7 +83,6 @@ const App = () => {
             component={ConfiguraçõesScreen}
             options={{ headerShown: false }}
           />
-          
         </Tab.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

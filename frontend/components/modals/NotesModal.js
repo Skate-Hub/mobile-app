@@ -1,7 +1,20 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { atualizarObservacoes, buscarManobra } from "../../services/ManobrasService";
-import { Ionicons } from '@expo/vector-icons';
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import {
+  atualizarObservacoes,
+  buscarManobra,
+  atualizarStatusManobra,
+} from "../../services/ManobrasService";
+import { Ionicons } from "@expo/vector-icons";
 import styles from "../styles/modals/NotesStyles";
 
 const NotesModal = ({ idManobra, onClose }) => {
@@ -9,7 +22,8 @@ const NotesModal = ({ idManobra, onClose }) => {
   const [observacoes, setObservacoes] = useState("");
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [anexos, setAnexos] = useState([]); // Estado para os anexos
+  const [anexos, setAnexos] = useState([]);
+  const [statusSelecionado, setStatusSelecionado] = useState("");
 
   useEffect(() => {
     const carregarManobra = async () => {
@@ -17,8 +31,8 @@ const NotesModal = ({ idManobra, onClose }) => {
         const data = await buscarManobra(idManobra);
         setManobra(data);
         setObservacoes(data.observacoes || "");
-        // Simulando anexos existentes - substitua pela sua lógica real
         setAnexos(data.anexos || []);
+        setStatusSelecionado(data.status || "aprender");
       } catch (error) {
         console.error("Erro ao carregar manobra:", error);
       } finally {
@@ -29,41 +43,32 @@ const NotesModal = ({ idManobra, onClose }) => {
     carregarManobra();
   }, [idManobra]);
 
-  // Função para adicionar um novo anexo (simulado)
-  const adicionarAnexo = () => {
-    // Aqui você implementaria a lógica real para adicionar anexos
-    // Pode ser com ImagePicker, DocumentPicker, ou câmera
-    const novoAnexo = {
-      id: Date.now().toString(),
-      nome: `Anexo_${anexos.length + 1}.jpg`,
-      tipo: 'imagem',
-      data: new Date().toISOString()
-    };
-    setAnexos([...anexos, novoAnexo]);
-  };
-
-  // Função para remover um anexo
   const removerAnexo = (id) => {
-    setAnexos(anexos.filter(anexo => anexo.id !== id));
+    setAnexos(anexos.filter((anexo) => anexo.id !== id));
   };
 
   const salvarObservacoes = async () => {
     if (isSaving) return;
-    
     setIsSaving(true);
     try {
-      const manobraAtualizada = {
-        ...manobra,
-        observacoes: observacoes,
-        anexos: anexos // Incluindo anexos no salvamento
-      };
-      
-      await atualizarObservacoes(idManobra, observacoes, anexos);
-      setManobra(manobraAtualizada);
+      await atualizarObservacoes(idManobra, observacoes);
+      setManobra((prev) => ({ ...prev, observacoes }));
     } catch (error) {
       console.error("Erro ao salvar observações:", error);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleAtualizarStatus = async (novoStatus) => {
+    if (statusSelecionado === novoStatus) return;
+
+    try {
+      await atualizarStatusManobra(novoStatus, idManobra);
+      setStatusSelecionado(novoStatus);
+      setManobra((prev) => ({ ...prev, status: novoStatus }));
+    } catch (err) {
+      console.error("Erro ao atualizar status:", err);
     }
   };
 
@@ -77,7 +82,7 @@ const NotesModal = ({ idManobra, onClose }) => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
       keyboardVerticalOffset={90}
     >
@@ -86,20 +91,20 @@ const NotesModal = ({ idManobra, onClose }) => {
           <TouchableOpacity onPress={onClose} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#007AFF" />
           </TouchableOpacity>
-          
-          <Text style={styles.headerTitle}>{manobra.nome || 'Sem nome'}</Text>
-          
-          <TouchableOpacity 
-            onPress={salvarObservacoes} 
+
+          <Text style={styles.headerTitle}>{manobra.nome || "Sem nome"}</Text>
+
+          <TouchableOpacity
+            onPress={salvarObservacoes}
             style={styles.saveButton}
             disabled={isSaving}
           >
             <Text style={styles.saveButtonText}>
-              {isSaving ? 'Salvando...' : 'Salvar'}
+              {isSaving ? "Salvando..." : "Salvar"}
             </Text>
           </TouchableOpacity>
         </View>
-        
+
         <TextInput
           style={styles.observacoesInput}
           multiline
@@ -109,29 +114,56 @@ const NotesModal = ({ idManobra, onClose }) => {
           placeholderTextColor="#999"
           textAlignVertical="top"
         />
-        
+
+        {/* Seção de Status da Manobra */}
+        <View style={styles.statusContainer}>
+          <Text style={styles.statusTitle}>Status</Text>
+          <View style={styles.statusOptions}>
+            {["aprender", "aprimorar", "na base"].map((status) => (
+              <TouchableOpacity
+                key={status}
+                style={[
+                  styles.statusButton,
+                  statusSelecionado === status && styles.statusButtonSelected,
+                ]}
+                onPress={() => handleAtualizarStatus(status)}
+              >
+                <Text
+                  style={[
+                    styles.statusButtonText,
+                    statusSelecionado === status && styles.statusButtonTextSelected,
+                  ]}
+                >
+                  {status}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         {/* Seção de Anexos */}
         <View style={styles.anexosContainer}>
           <View style={styles.anexosHeader}>
             <Text style={styles.anexosTitle}>Anexos</Text>
-            <TouchableOpacity onPress={adicionarAnexo} style={styles.addButton}>
+            <TouchableOpacity style={styles.addButton}>
               <Ionicons name="add" size={24} color="#007AFF" />
             </TouchableOpacity>
           </View>
-          
+
           {anexos.length > 0 ? (
             <View style={styles.anexosList}>
-              {anexos.map(anexo => (
-                <View key={anexo.id} style={styles.anexoItem}>
-                  <Ionicons 
-                    name={anexo.tipo === 'imagem' ? 'image' : 'document'} 
-                    size={20} 
-                    color="#555" 
+              {anexos.map((anexo) => (
+                <View key={anexo._id} style={styles.anexoItem}>
+                  <Ionicons
+                    name={anexo.tipo === "imagem" ? "image" : "document"}
+                    size={20}
+                    color="#555"
                   />
+                  <Text>{anexo.url}</Text>
                   <Text style={styles.anexoNome} numberOfLines={1}>
-                    {anexo.nome}
+                    {anexo.nomeOriginal}
                   </Text>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     onPress={() => removerAnexo(anexo.id)}
                     style={styles.removeButton}
                   >

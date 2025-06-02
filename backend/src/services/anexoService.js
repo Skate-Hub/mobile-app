@@ -6,7 +6,7 @@ const adicionarAnexoService = async (obstaculoId, manobraId, novoAnexo) => {
       obstaculoId,
       manobraId,
       novoAnexo,
-    }); // Debug
+    }); 
 
     const obstaculo = await Obstaculo.findOneAndUpdate(
       {
@@ -16,7 +16,7 @@ const adicionarAnexoService = async (obstaculoId, manobraId, novoAnexo) => {
       {
         $push: { "manobras.$.anexos": novoAnexo },
       },
-      { new: true } // Retorna o documento atualizado
+      { new: true } 
     );
 
     if (!obstaculo) {

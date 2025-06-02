@@ -7,36 +7,34 @@ const adicionarAnexoController = async (req, res) => {
   const { obstaculoId, manobraId } = req.params;
 
   // Extrai e valida cada campo do body individualmente
-  const {
-    url,
-    caminhoFirebase,
-    tipo,
-    nomeOriginal,
-    tamanho,
-    formato,
-    metadata
-  } = req.body;
+  const url = req.body.url;
+  const caminhoFirebase = req.body.caminhoFirebase;
+  const tipo = req.body.tipo;
+  const nomeOriginal = req.body.nomeOriginal;
+  const tamanho = req.body.tamanho;
+  const formato = req.body.formato;
+  const metadata = req.body.metadata;
 
   // Validação dos campos obrigatórios
   if (!url || !caminhoFirebase || !tipo || !nomeOriginal || !tamanho) {
     return res.status(400).json({
-      error: "Campos obrigatórios faltando: url, caminhoFirebase, tipo, nomeOriginal, tamanho"
+      error:
+        "Campos obrigatórios faltando: url, caminhoFirebase, tipo, nomeOriginal, tamanho",
     });
   }
 
   try {
-    // Cria o objeto do anexo com campos explícitos
     const novoAnexo = {
       url: url,
       caminhoFirebase: caminhoFirebase,
       tipo: tipo,
       nomeOriginal: nomeOriginal,
       tamanho: tamanho,
-      formato: formato || null, // Campo opcional (padrão: null)
-      metadata: metadata || {}  // Campo opcional (padrão: objeto vazio)
+      formato: formato || null,
+      metadata: metadata || {},
     };
 
-    console.log("Novo anexo criado no controller:", novoAnexo); // Debug
+    console.log("Novo anexo criado no controller:", novoAnexo);
 
     const resultado = await adicionarAnexoService(
       obstaculoId,

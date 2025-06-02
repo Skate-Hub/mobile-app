@@ -1,9 +1,13 @@
 const Obstaculo = require("../models/obstaculo");
 
 const adicionarAnexoService = async (obstaculoId, manobraId, novoAnexo) => {
-  console.log("Obstáculo encontrado:", obstaculoId);
-  console.log("Novo anexo:", novoAnexo); 
   try {
+    console.log("Dados recebidos no service:", {
+      obstaculoId,
+      manobraId,
+      novoAnexo,
+    }); // Debug
+
     const obstaculo = await Obstaculo.findOneAndUpdate(
       {
         _id: obstaculoId,
@@ -12,15 +16,17 @@ const adicionarAnexoService = async (obstaculoId, manobraId, novoAnexo) => {
       {
         $push: { "manobras.$.anexos": novoAnexo },
       },
-      { new: true }
+      { new: true } // Retorna o documento atualizado
     );
 
     if (!obstaculo) {
       throw new Error("Obstáculo ou manobra não encontrado");
     }
 
+    console.log("Obstáculo atualizado:", obstaculo); // Debug
     return obstaculo;
   } catch (error) {
+    console.error("Erro no service:", error);
     throw error;
   }
 };

@@ -10,6 +10,6 @@ DBconnect();
 app.use(express.json());
 app.use('/obstaculos', obstaculoRoutes);
 app.use('/manobras', manobrasRoutes);
-app.use('/', anexosRoutes);
+app.use('/anexos', anexosRoutes);
 
 module.exports = app;

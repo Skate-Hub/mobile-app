@@ -6,6 +6,8 @@ const {
 const adicionarAnexoController = async (req, res) => {
   const { obstaculoId, manobraId } = req.params;
 
+  console.log("req.body:", req.body);
+
   // Extrai e valida cada campo do body individualmente
   const url = req.body.url;
   const caminhoFirebase = req.body.caminhoFirebase;

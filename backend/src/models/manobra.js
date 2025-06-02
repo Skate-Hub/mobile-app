@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+import anexoSchema from "./anexo";
 
 const manobraSchema = new mongoose.Schema(
   {

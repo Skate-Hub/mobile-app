@@ -47,8 +47,6 @@ const adicionarAnexoController = async (req, res) => {
 const removerAnexoController = async (req, res) => {
   const { obstaculoId, manobraId, anexoId } = req.params;
 
-  console.log("controller - ", obstaculoId, manobraId, anexoId);
-
   try {
     const resultado = await removerAnexoService(
       obstaculoId,

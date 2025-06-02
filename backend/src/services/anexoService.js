@@ -25,7 +25,6 @@ const adicionarAnexoService = async (obstaculoId, manobraId, novoAnexo) => {
 };
 
 const removerAnexoService = async (obstaculoId, manobraId, anexoId) => {
-  console.log("Service - ", obstaculoId, manobraId, anexoId);
 
   try {
     const obstaculo = await Obstaculo.findOneAndUpdate(

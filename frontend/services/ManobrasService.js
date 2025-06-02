@@ -20,7 +20,7 @@ export const buscarManobras = async () => {
 };
 
 export const buscarManobra = async (idManobra) => {
-   try {
+  try {
     const response = await fetch(`${apiUrl}/manobras/manobra/${idManobra}`);
 
     if (!response) {
@@ -57,6 +57,23 @@ export const buscarManobrasObstaculo = async (id) => {
   }
 };
 
+export const filtrarManobrasStatus = async (novoStatus, manobraId) => {
+  try {
+    const response = await fetch(`/manobras/status/${manobraId}`, {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ novoStatus }),
+    });
+
+    return response.json();
+  } catch (err) {
+    console.error("erro ao buscar manobras: ", err);
+    return "erro ao buscar manobras";
+  }
+};
+
 export const atualizarObservacoes = async (idManobra, observacoes) => {
   try {
     const response = await fetch(
@@ -85,21 +102,24 @@ export const atualizarObservacoes = async (idManobra, observacoes) => {
   }
 };
 
-export const adicionarAnexo = async(obstaculoId, manobraId, anexo) => {
-  const response = await fetch(`${apiUrl}/anexos/obstaculo/${obstaculoId}/manobra/${manobraId}/anexo`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ anexo }),
-  });
+export const adicionarAnexo = async (obstaculoId, manobraId, anexo) => {
+  const response = await fetch(
+    `${apiUrl}/anexos/obstaculo/${obstaculoId}/manobra/${manobraId}/anexo`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ anexo }),
+    }
+  );
 
   if (!response.ok) {
     throw new Error("Erro ao criar obstáculo");
   }
 
   return await response.json();
-}
+};
 
 export const atualizarStatusManobra = async (novoStatus, manobraId) => {
   const response = await fetch(`${apiUrl}/manobras/status/${manobraId}`, {
@@ -115,4 +135,4 @@ export const atualizarStatusManobra = async (novoStatus, manobraId) => {
   }
 
   return await response.json();
-}
+};

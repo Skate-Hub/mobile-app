@@ -1,6 +1,5 @@
 import { StyleSheet, Platform, StatusBar } from "react-native";
 
-
 const ManobraStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -44,14 +43,36 @@ const ManobraStyles = StyleSheet.create({
     fontWeight: "500",
     color: "#333",
   },
-    searchContainer: {
- 
+  searchContainer: {
     display: "flex",
-    width: "40%"
+    width: "40%",
   },
   searchInput: {
     backgroundColor: "#f5f5f5",
     height: 40,
+  },
+  menuButton: {
+    borderColor: "#000",
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: "#f5f5f5",
+    height: 40,
+    width: "100%",
+    justifyContent: "center",
+  },
+
+  menuButtonLabel: {
+    color: "#000",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  optionbox: {
+    backgroundColor: "#f5f5f5",
+    borderColor: "#333"
+  },
+  menuItemTitle: {
+    color: "#000",
+    fontWeight: "500",
   },
 });
 

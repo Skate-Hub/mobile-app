@@ -1,16 +1,18 @@
 const Obstaculo = require("../models/obstaculo");
 
 const adicionarAnexoService = async (obstaculoId, manobraId, novoAnexo) => {
+  console.log("Obstáculo encontrado:", obstaculo);
+  console.log("Novo anexo:", novoAnexo); 
   try {
     const obstaculo = await Obstaculo.findOneAndUpdate(
-      { 
-        "_id": obstaculoId, 
-        "manobras._id": manobraId 
+      {
+        _id: obstaculoId,
+        "manobras._id": manobraId,
       },
-      { 
-        $push: { "manobras.$.anexos": novoAnexo } 
+      {
+        $push: { "manobras.$.anexos": novoAnexo },
       },
-      { new: true } 
+      { new: true }
     );
 
     if (!obstaculo) {
@@ -26,12 +28,12 @@ const adicionarAnexoService = async (obstaculoId, manobraId, novoAnexo) => {
 const removerAnexoService = async (obstaculoId, manobraId, anexoId) => {
   try {
     const obstaculo = await Obstaculo.findOneAndUpdate(
-      { 
-        "_id": obstaculoId, 
-        "manobras._id": manobraId 
+      {
+        _id: obstaculoId,
+        "manobras._id": manobraId,
       },
-      { 
-        $pull: { "manobras.$.anexos": { _id: anexoId } } 
+      {
+        $pull: { "manobras.$.anexos": { _id: anexoId } },
       },
       { new: true }
     );

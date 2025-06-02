@@ -6,9 +6,6 @@ const {
 const adicionarAnexoController = async (req, res) => {
   const { obstaculoId, manobraId } = req.params;
 
-  console.log("req.body:", req.body);
-
-  // Extrai e valida cada campo do body individualmente
   const url = req.body.url;
   const caminhoFirebase = req.body.caminhoFirebase;
   const tipo = req.body.tipo;
@@ -17,7 +14,6 @@ const adicionarAnexoController = async (req, res) => {
   const formato = req.body.formato;
   const metadata = req.body.metadata;
 
-  // Validação dos campos obrigatórios
   if (!url || !caminhoFirebase || !tipo || !nomeOriginal || !tamanho) {
     return res.status(400).json({
       error:
@@ -36,8 +32,6 @@ const adicionarAnexoController = async (req, res) => {
       metadata: metadata || {},
     };
 
-    console.log("Novo anexo criado no controller:", novoAnexo);
-
     const resultado = await adicionarAnexoService(
       obstaculoId,
       manobraId,
@@ -52,6 +46,8 @@ const adicionarAnexoController = async (req, res) => {
 
 const removerAnexoController = async (req, res) => {
   const { obstaculoId, manobraId, anexoId } = req.params;
+
+  console.log("controller - ", obstaculoId, manobraId, anexoId);
 
   try {
     const resultado = await removerAnexoService(

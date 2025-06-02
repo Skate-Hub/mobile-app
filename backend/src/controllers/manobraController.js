@@ -39,6 +39,22 @@ const filtrarManobrasStatus = async (req, res) => {
   res.json(lista);
 };
 
+const atualizarManobrasStatusController = async (req, res) => {
+  const manobraId = req.params.id;
+  const novoStatus = req.body.novoStatus;
+
+  try {
+    const response = await manobraService.atualizarManobrasStatus(
+      novoStatus,
+      manobraId
+    );
+
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(400).json({ erro: err.message });
+  }
+};
+
 const adicionarManobra = async (req, res) => {
   const obstaculoId = req.params.id;
   const nome = req.body.nome;
@@ -92,4 +108,5 @@ module.exports = {
   buscarManobrasObstaculo,
   adicionarObservacoesController,
   buscarManobraController,
+  atualizarManobrasStatusController
 };

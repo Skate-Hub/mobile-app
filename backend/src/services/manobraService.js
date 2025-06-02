@@ -65,7 +65,24 @@ const adicionarManobra = async (obstaculoId, manobraData) => {
 
 const atualizarManobrasNome = async () => {};
 
-const atualizarManobrasStatus = async (novoStatus, manobraId) => {};
+const atualizarManobrasStatus = async (novoStatus, manobraId) => {
+  const obstaculo = await Obstaculo.findOne({ "manobras._id": manobraId });
+
+  if (!obstaculo) {
+    throw new Error("Manobra não encontrada.");
+  }
+
+  const manobra = obstaculo.manobras.id(manobraId);
+  if (!manobra) {
+    throw new Error("Manobra não encontrada no obstáculo.");
+  }
+
+  manobra.status = novoStatus;
+
+  obstaculo.save();
+
+  return obstaculo;
+};
 
 const deletarManobras = async (manobraId) => {
   const obstaculos = await Obstaculo.find();

@@ -5,12 +5,12 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
-import { adicionarManobra, criarManobra } from "../../services/ManobrasService";
+import { adicionarManobra, criarManobra } from "../../../services/ManobrasService";
 import { useState } from "react";
 
 const AddManobraModal = ({ onClose, idObstaculo }) => {
   const [nomeNovaManobra, setNomeNovaManobra] = useState("");
-  const [statusNovaManobra, setStatusNovaManobra] = useState("Aprender");
+  const [statusNovaManobra, setStatusNovaManobra] = useState("aprender");
 
   const handleAdicionar = async () => {
     try {
@@ -41,7 +41,7 @@ const AddManobraModal = ({ onClose, idObstaculo }) => {
 
         <Text style={styles.subtitle}>Status da manobra:</Text>
         <View style={styles.menuContainer}>
-          {["Aprender", "Aprimorar", "Na base"].map((status) => (
+          {["aprender", "aprimorar", "na base"].map((status) => (
             <TouchableOpacity
               key={status}
               style={[

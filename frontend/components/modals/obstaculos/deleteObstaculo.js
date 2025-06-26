@@ -1,44 +1,31 @@
-import {
-  View,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-} from "react-native";
-import { criarObstaculo } from "../../services/obstaculosService";
-import { useState } from "react";
+// components/modals/DeleteObstaculoModal.js
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { deletarObstaculo } from "../../../services/obstaculosService";
 
-const AddObstaculoModal = ({ onClose }) => {
-  const [novoObstaculo, setNovoObstaculo] = useState("");
-
-  const handleAdicionar = async () => {
+const DeleteObstaculoModal = ({ onClose, obstaculoId }) => {
+  const handleExcluir = async () => {
     try {
-      await criarObstaculo(novoObstaculo);
+      await deletarObstaculo(obstaculoId);
       onClose();
     } catch (error) {
-      console.error("Erro ao criar obstáculo:", error);
+      console.error("Erro ao excluir obstáculo:", error);
     }
   };
 
   return (
     <View style={styles.overlay}>
       <View style={styles.card}>
-        <Text style={styles.title}>Novo Obstáculo</Text>
-
-        <TextInput
-          placeholder="Digite o nome do novo obstáculo"
-          value={novoObstaculo}
-          onChangeText={setNovoObstaculo}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
+        <Text style={styles.title}>Excluir Obstáculo</Text>
+        <Text style={styles.subtitle}>
+          Tem certeza que deseja excluir este obstáculo?
+        </Text>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[styles.button, styles.add]}
-            onPress={handleAdicionar}
+            style={[styles.button, styles.delete]}
+            onPress={handleExcluir}
           >
-            <Text style={styles.buttonText}>Adicionar</Text>
+            <Text style={styles.buttonText}>Excluir</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -54,13 +41,18 @@ const AddObstaculoModal = ({ onClose }) => {
 };
 
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   card: {
     backgroundColor: "#fff",
     borderColor: "#000",
     borderWidth: 1,
     borderRadius: 8,
     padding: 20,
-    marginVertical: 8,
     marginHorizontal: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -71,16 +63,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  input: {
-    backgroundColor: "#f5f5f5",
-    height: 40,
-    paddingHorizontal: 10,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    marginBottom: 16,
+  subtitle: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
   },
   buttonContainer: {
     flexDirection: "row",
@@ -93,11 +81,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     alignItems: "center",
   },
-  add: {
-    backgroundColor: "green",
+  delete: {
+    backgroundColor: "red",
   },
   cancel: {
-    backgroundColor: "red",
+    backgroundColor: "gray",
   },
   buttonText: {
     color: "white",
@@ -105,4 +93,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddObstaculoModal;
+export default DeleteObstaculoModal;

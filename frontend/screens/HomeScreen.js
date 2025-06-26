@@ -16,17 +16,26 @@ import { Ionicons } from "@expo/vector-icons";
 import Header from "../components/estrutura/Header";
 import { useNavigation } from "@react-navigation/native";
 import styles from "../styles/HomeStyles";
-import AddObstaculoModal from "../components/modals/addObstaculo";
-
+import OpcoesModal from "../components/modals/opcoesModal";
+import AddObstaculoModal from "../components/modals/obstaculos/addObstaculo";
+import DeleteObstaculoModal from "../components/modals/obstaculos/deleteObstaculo";
+import EditObstaculoModal from "../components/modals/obstaculos/editObstaculo";
 
 const HomeScreen = () => {
   const [obstaculos, setObstaculos] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [abrirOpcoesModal, setAbrirOpcoesModal] = useState(false);
   const [abrirAddObstaculoModal, setAbrirAddObstaculoModal] = useState(false);
+  const [mostrarDeleteModal, setMostrarDeleteModal] = useState(false);
+  const [mostrarEditModal, setMostrarEditModal] = useState(false);
+  const [obstaculoSelecionado, setObstaculoSelecionado] = useState(null);
+
+  const [modoExcluir, setModoExcluir] = useState(false);
+  const [modoEditar, setModoEditar] = useState(false);
 
   const navigation = useNavigation();
 
-  
   const carregarObstaculos = async () => {
     try {
       setLoading(true);
@@ -45,8 +54,40 @@ const HomeScreen = () => {
     carregarObstaculos();
   }, []);
 
-  const handleModalClose = () => {
+  const abrirAdicionarObstaculo = () => {
+    setAbrirOpcoesModal(false);
+    setAbrirAddObstaculoModal(true);
+  };
+
+  const abrirExcluir = () => {
+    setAbrirOpcoesModal(false);
+    setModoExcluir(true);
+  };
+
+  const abrirEditar = () => {
+    setAbrirOpcoesModal(false);
+    setModoEditar(true);
+  };
+
+  const aoTocarItem = (item) => {
+    if (modoExcluir) {
+      setObstaculoSelecionado(item);
+      setMostrarDeleteModal(true);
+    } else if (modoEditar) {
+      setObstaculoSelecionado(item);
+      setMostrarEditModal(true);
+    } else {
+      navigation.navigate("Obstaculo", { id: item });
+    }
+  };
+
+  const fecharModaisEAcoes = () => {
+    setModoExcluir(false);
+    setModoEditar(false);
+    setMostrarDeleteModal(false);
+    setMostrarEditModal(false);
     setAbrirAddObstaculoModal(false);
+    setObstaculoSelecionado(null);
     carregarObstaculos();
   };
 
@@ -61,19 +102,49 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Header />
+
       {obstaculos.length > 0 ? (
         <View>
+          {(modoExcluir || modoEditar) && (
+            <View
+              style={[
+                styles.modoBanner,
+                modoExcluir ? styles.modoExcluir : styles.modoEditar,
+              ]}
+            >
+              <Text style={styles.modoTexto}>
+                {modoExcluir
+                  ? "Toque no obstáculo para EXCLUIR."
+                  : "Toque no obstáculo para EDITAR."}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setModoExcluir(false);
+                  setModoEditar(false);
+                }}
+              >
+                <Text style={[styles.modoTexto, styles.cancelarTexto]}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
           <FlatList
             data={obstaculos}
             renderItem={({ item }) => (
-              <ObstaculoCard item={item} navigation={navigation} />
+              <ObstaculoCard
+                item={item}
+                onPress={() => aoTocarItem(item._id)}
+              />
             )}
             keyExtractor={(item) => item._id.toString()}
             contentContainerStyle={styles.listContent}
           />
+
           <TouchableOpacity
             style={styles.addButtonContainer}
-            onPress={() => setAbrirAddObstaculoModal(true)}
+            onPress={() => setAbrirOpcoesModal(true)}
           >
             <Ionicons name="add-circle" size={60} color="#000" />
           </TouchableOpacity>
@@ -85,23 +156,66 @@ const HomeScreen = () => {
             source={require("../assets/icons/placeholder_skater.png")}
           />
           <Text style={styles.emptyText}>Cadastre Seu Primeiro Obstáculo</Text>
-          <TouchableOpacity style={{ marginTop: 40 }}>
+          <TouchableOpacity
+            style={{ marginTop: 40 }}
+            onPress={() => setAbrirOpcoesModal(true)}
+          >
             <Ionicons name="add-circle" size={60} color="#000" />
           </TouchableOpacity>
         </View>
       )}
 
+      {/* Modal Opções */}
+      <Modal
+        visible={abrirOpcoesModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAbrirOpcoesModal(false)}
+      >
+        <OpcoesModal
+          visible={abrirOpcoesModal}
+          onClose={() => setAbrirOpcoesModal(false)}
+          onAdicionar={abrirAdicionarObstaculo}
+          onExcluir={abrirExcluir}
+          onEditar={abrirEditar}
+        />
+      </Modal>
+
+      {/* Modal Adicionar */}
       <Modal
         visible={abrirAddObstaculoModal}
         transparent
         animationType="slide"
-        onRequestClose={() => setAbrirAddObstaculoModal(false)}
+        onRequestClose={fecharModaisEAcoes}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <AddObstaculoModal onClose={handleModalClose} />
-          </View>
-        </View>
+        <AddObstaculoModal onClose={fecharModaisEAcoes} />
+      </Modal>
+
+      {mostrarDeleteModal && obstaculoSelecionado && (
+        <Modal
+          visible={mostrarDeleteModal}
+          transparent
+          animationType="fade"
+          onRequestClose={fecharModaisEAcoes}
+        >
+          <DeleteObstaculoModal
+            obstaculoId={obstaculoSelecionado}
+            onClose={fecharModaisEAcoes}
+          />
+        </Modal>
+      )}
+
+      {/* Modal Editar */}
+      <Modal
+        visible={mostrarEditModal}
+        transparent
+        animationType="slide"
+        onRequestClose={fecharModaisEAcoes}
+      >
+        <EditObstaculoModal
+          obstaculo={obstaculoSelecionado}
+          onClose={fecharModaisEAcoes}
+        />
       </Modal>
     </SafeAreaView>
   );

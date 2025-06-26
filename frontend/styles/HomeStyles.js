@@ -1,6 +1,5 @@
 import { StyleSheet, Platform, StatusBar } from "react-native";
 
-
 const HomeStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -32,9 +31,36 @@ const HomeStyles = StyleSheet.create({
     textAlign: "center",
   },
   addButtonContainer: {
-   position: "absolute",
+    position: "absolute",
     top: 630,
     right: 30,
+  },
+
+  modoBanner: {
+    flexDirection: "column",
+    justifyContent: "space-between",
+    gap: 5,
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 6,
+  },
+  modoExcluir: {
+    backgroundColor: "#ffdddd", // vermelho claro para exclusão
+  },
+  modoEditar: {
+    backgroundColor: "#ddeeff", // azul claro para edição
+  },
+  modoTexto: {
+    fontWeight: "bold",
+    fontSize: 16,
+    color: "#333",
+  },
+  cancelarTexto: {
+    color: "red",
+    fontWeight: "bold",
   },
 });
 

@@ -46,6 +46,7 @@ const ManobraCard = ({ item, onPress }) => {
         <Text style={[styles.statusText, { color }]}>
           {item.status ? item.status.toUpperCase() : "N/A"}
         </Text>
+         <MaterialCommunityIcons name="chevron-right" size={30} />
       </View>
     </TouchableOpacity>
   );

@@ -18,7 +18,7 @@ import ManobraCard from "../components/cards/ManobraItem";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import styles from "../styles/ObstaculoStyles";
 import NotesModal from "../components/modals/NotesModal";
-import AddManobraModal from "../components/modals/addManobra";
+import AddManobraModal from "../components/modals/manobras/addManobra";
 
 const Obstaculo = () => {
   const [manobras, setManobras] = useState([]);
@@ -33,20 +33,20 @@ const Obstaculo = () => {
   const navigation = useNavigation();
 
   //buscar manobras atreladas ao id do item passado
-  useEffect(() => {
-    const carregarManobrasObstaculo = async () => {
-      try {
-        const data = await buscarManobrasObstaculo(id);
-        if (data) {
-          setManobras(data);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar obstáculos:", error);
-      } finally {
-        setLoading(false);
+  const carregarManobrasObstaculo = async () => {
+    try {
+      const data = await buscarManobrasObstaculo(id);
+      if (data) {
+        setManobras(data);
       }
-    };
+    } catch (error) {
+      console.error("Erro ao carregar obstáculos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     carregarManobrasObstaculo();
   }, []);
 
@@ -73,6 +73,7 @@ const Obstaculo = () => {
   };
 
   const handleModalManobraClose = () => {
+    carregarManobrasObstaculo();
     setAbrirAddManobraModal(false);
   };
 
@@ -94,7 +95,10 @@ const Obstaculo = () => {
             contentContainerStyle={styles.listContent}
           />
 
-          <TouchableOpacity style={styles.addButtonContainer}>
+          <TouchableOpacity
+            style={styles.addButtonContainer}
+            onPress={() => handleAbrirManobrasModal()}
+          >
             <Ionicons name="add-circle" size={60} color="#000" />
           </TouchableOpacity>
         </View>

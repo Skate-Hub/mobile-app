@@ -2,22 +2,26 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 
-const ObstaculoCard = ({ item }) => {
+const ObstaculoCard = ({ item, onPress }) => {
   const navigation = useNavigation();
 
   const handlePress = () => {
-    navigation.navigate("Obstaculo", {
-      id: item._id,
-    });
+    if (onPress) {
+      onPress(); // Usar o comportamento customizado vindo da HomeScreen
+    } else {
+      navigation.navigate("Obstaculo", {
+        id: item._id,
+      });
+    }
   };
 
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View>
         <Text style={styles.title}>{item.nome}</Text>
-        <Text>manobras adicionadas: {item.manobras.length} </Text>
+        <Text>manobras adicionadas: {item.manobras.length}</Text>
       </View>
       <MaterialCommunityIcons name="chevron-right" size={30} />
     </TouchableOpacity>
@@ -42,24 +46,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  textContainer: {
-    flex: 1,
-  },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-  },
-  statusContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  statusText: {
-    marginLeft: 5,
-    fontSize: 10,
-    fontWeight: "500",
-  },
-  icon: {
-    marginRight: 5,
   },
 });
 

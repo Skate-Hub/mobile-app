@@ -31,3 +31,15 @@ export const criarObstaculo = async (nome) => {
 
   return await response.json();
 };
+
+export const deletarObstaculo = async (id) => {
+  const response = await fetch(`${apiUrl}/obstaculos/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao deletar obstáculo");
+  }
+
+  return await response.json();
+};

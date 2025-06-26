@@ -18,12 +18,14 @@ import ManobraCard from "../components/cards/ManobraItem";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import styles from "../styles/ObstaculoStyles";
 import NotesModal from "../components/modals/NotesModal";
+import AddManobraModal from "../components/modals/addManobra";
 
 const Obstaculo = () => {
   const [manobras, setManobras] = useState([]);
   const [idManobraSelecionada, setIdManobraselecionada] = useState([]);
   const [loading, setLoading] = useState(true);
   const [abrirNotesModal, setAbrirNotesModal] = useState(false);
+  const [abrirAddManobraModal, setAbrirAddManobraModal] = useState(false);
 
   const route = useRoute();
   const id = route.params.id;
@@ -64,6 +66,14 @@ const Obstaculo = () => {
   const handleModalClose = () => {
     setAbrirNotesModal(false);
     setIdManobraselecionada(null);
+  };
+
+  const handleAbrirManobrasModal = () => {
+    setAbrirAddManobraModal(true);
+  };
+
+  const handleModalManobraClose = () => {
+    setAbrirAddManobraModal(false);
   };
 
   return (
@@ -108,18 +118,33 @@ const Obstaculo = () => {
             />
             <Text style={{ fontSize: 30, fontWeight: 500 }}>Voltar</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addButtonContainer}
+            onPress={() => handleAbrirManobrasModal()}
+          >
+            <Ionicons name="add-circle" size={60} color="#000" />
+          </TouchableOpacity>
         </View>
       )}
       <Modal
         visible={abrirNotesModal}
         transparent
         animationType="slide"
-        onRequestClose={() => setAbrirNotesModal(false)}
+        onRequestClose={handleModalClose}
       >
         <NotesModal
           onClose={handleModalClose}
           idManobra={idManobraSelecionada}
         />
+      </Modal>
+
+      <Modal
+        visible={abrirAddManobraModal}
+        transparent
+        animationType="slide"
+        onRequestClose={handleModalManobraClose}
+      >
+        <AddManobraModal onClose={handleModalManobraClose} idObstaculo={id} />
       </Modal>
     </SafeAreaView>
   );

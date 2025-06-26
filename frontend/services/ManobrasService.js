@@ -136,3 +136,24 @@ export const atualizarStatusManobra = async (novoStatus, manobraId) => {
 
   return await response.json();
 };
+
+export const adicionarManobra= async (nova, idObstaculo) => {
+  console.log(nova);
+  console.log(idObstaculo);
+  const response = await fetch(
+    `${apiUrl}/manobras/${idObstaculo}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(nova),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao adicionar manobra");
+  }
+
+  return await response.json();
+};

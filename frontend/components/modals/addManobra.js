@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
-import { criarManobra } from "../../services/ManobrasService";
+import { adicionarManobra, criarManobra } from "../../services/ManobrasService";
 import { useState } from "react";
 
 const AddManobraModal = ({ onClose, idObstaculo }) => {
@@ -17,10 +17,9 @@ const AddManobraModal = ({ onClose, idObstaculo }) => {
       const nova = {
         nome: nomeNovaManobra,
         status: statusNovaManobra,
-        obstaculo: idObstaculo,
       };
 
-      await criarManobra(nova);
+      await adicionarManobra(nova, idObstaculo);
       onClose();
     } catch (error) {
       console.error("Erro ao criar manobra:", error);

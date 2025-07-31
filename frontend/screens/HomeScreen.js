@@ -1,5 +1,7 @@
 // screens/Home.js
 import React, { useState, useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 import {
   SafeAreaView,
   View,
@@ -50,13 +52,16 @@ const HomeScreen = () => {
     }
   };
 
-  useEffect(() => {
-    carregarObstaculos();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      carregarObstaculos();
+    }, [])
+  );
 
   const abrirAdicionarObstaculo = () => {
     setAbrirOpcoesModal(false);
     setAbrirAddObstaculoModal(true);
+    carregarObstaculos();
   };
 
   const abrirExcluir = () => {

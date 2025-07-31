@@ -30,8 +30,6 @@ const Obstaculo = () => {
   const route = useRoute();
   const id = route.params.id;
 
-  const navigation = useNavigation();
-
   //buscar manobras atreladas ao id do item passado
   const carregarManobrasObstaculo = async () => {
     try {
@@ -66,6 +64,7 @@ const Obstaculo = () => {
   const handleModalClose = () => {
     setAbrirNotesModal(false);
     setIdManobraselecionada(null);
+    carregarManobrasObstaculo();
   };
 
   const handleAbrirManobrasModal = () => {
@@ -81,6 +80,7 @@ const Obstaculo = () => {
     <SafeAreaView style={styles.container}>
       <Header />
 
+      
       {manobras.length > 0 ? (
         <View>
           <FlatList
@@ -111,17 +111,6 @@ const Obstaculo = () => {
           <Text style={styles.emptyText}>
             Esse obstaculo ainda nao tem nenhuma manobra cadastrada!
           </Text>
-          <TouchableOpacity
-            style={styles.backSection}
-            onPress={() => navigation.navigate("HomeStack")}
-          >
-            <MaterialCommunityIcons
-              name="chevron-left"
-              size={60}
-              color="#000"
-            />
-            <Text style={{ fontSize: 30, fontWeight: 500 }}>Voltar</Text>
-          </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButtonContainer}
             onPress={() => handleAbrirManobrasModal()}

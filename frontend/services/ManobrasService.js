@@ -138,8 +138,6 @@ export const atualizarStatusManobra = async (novoStatus, manobraId) => {
 };
 
 export const adicionarManobra= async (nova, idObstaculo) => {
-  console.log(nova);
-  console.log(idObstaculo);
   const response = await fetch(
     `${apiUrl}/manobras/${idObstaculo}`,
     {

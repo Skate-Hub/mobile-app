@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
+
 import {
   SafeAreaView,
   View,
@@ -30,23 +33,25 @@ const ManobrasScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [status, setStatus] = useState("");
 
-  useEffect(() => {
-    const carregarManobras = async () => {
-      try {
-        const data = await buscarManobras();
-        if (data) {
-          setManobras(data);
-          setManobrasFiltradas(data);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar manobras:", error);
-      } finally {
-        setLoading(false);
+  const carregarManobras = async () => {
+    try {
+      const data = await buscarManobras();
+      if (data) {
+        setManobras(data);
+        setManobrasFiltradas(data);
       }
-    };
+    } catch (error) {
+      console.error("Erro ao carregar manobras:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    carregarManobras();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      carregarManobras();
+    }, [])
+  );
 
   const handleChangeStatus = (novoStatus) => {
     if (status === novoStatus) {
@@ -174,18 +179,8 @@ const ManobrasScreen = () => {
             <Text style={styles.emptyText}>
               {manobraBuscada
                 ? "Nenhuma manobra encontrada"
-                : "Adicione Uma Manobra a Um Obstaculo"}
+                : "Não há nenhuma manobra nessa categoria"}
             </Text>
-            <TouchableOpacity
-              style={{ marginTop: 40 }}
-              onPress={() => navigation.navigate("Home")}
-            >
-              <MaterialCommunityIcons
-                name="plus-circle"
-                size={60}
-                color="#000"
-              />
-            </TouchableOpacity>
           </View>
         )}
         <Modal

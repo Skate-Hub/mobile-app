@@ -9,9 +9,9 @@ export default function Obstaculos() {
       id: 1,
       nome: "Canteiro Central",
       manobras: [
-        { id: 1, nome: "Ollie", status: "média", observacoes: [] },
-        { id: 2, nome: "Shove-it", status: "difícil", observacoes: [] },
-        { id: 3, nome: "Flip", status: "difícil", observacoes: [] },
+        { id: 1, nome: "Ollie", status: "média", observacoes: []},
+        { id: 2, nome: "Shove-it", status: "difícil", observacoes: []},
+        { id: 3, nome: "Flip", status: "difícil", observacoes: []},
         
       ],
     },

@@ -1,31 +1,37 @@
 const Obstaculo = require("../models/obstaculo");
 
-const criarObstaculo = async (nome) => {
-  const obstaculo = new Obstaculo(nome);
+// Cria um obstáculo associado ao usuário logado
+const criarObstaculo = async (userId, nome) => {
+  const obstaculo = new Obstaculo({
+    nome,
+    user: userId, 
+    manobras: [],
+  });
+
   return await obstaculo.save();
 };
 
-const listarObstaculos = async () => {
-  return await Obstaculo.find();
+// Lista apenas os obstáculos do usuário logado
+const listarObstaculos = async (userId) => {
+  return await Obstaculo.find({ user: userId });
 };
 
-const atualizarObstaculoNome = async (id, novoNome, iconKey) => {
-  const resultado = await Obstaculo.updateOne(
+// Atualiza nome do obstáculo (validação opcional de userId no controller)
+const atualizarObstaculoNome = async (id, novoNome) => {
+  return await Obstaculo.updateOne(
     { _id: id },
     { $set: { nome: novoNome } }
   );
-  return resultado; // resultado contém info como matchedCount, modifiedCount
 };
 
+// Deleta obstáculo (validação opcional de userId no controller)
 const deletarObstaculo = async (id) => {
-  const resultado = await Obstaculo.deleteOne({ _id: id });
-
-  return resultado;
+  return await Obstaculo.deleteOne({ _id: id });
 };
 
 module.exports = {
   criarObstaculo,
   listarObstaculos,
   atualizarObstaculoNome,
-  deletarObstaculo
+  deletarObstaculo,
 };

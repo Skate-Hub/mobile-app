@@ -1,4 +1,10 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { Link } from "expo-router";
 import { useState } from "react";
 import { coresDark as cores } from "@/temas/cores";
@@ -9,12 +15,15 @@ export default function Login() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>SkateNotes</Text>
-      <Text style={styles.subtitle}>Suas manobras, suas evoluções</Text>
-
+      <Text style={styles.title}>SkateHub</Text>
+      <Text style={styles.subtitle}>
+        Acesse seus módulos de skate em um só lugar
+      </Text>
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Entrar</Text>
-        <Text style={styles.cardSubtitle}>Acesse suas anotações de skate</Text>
+        <Text style={styles.cardSubtitle}>
+          Entre e explore os módulos do SkateHub
+        </Text>
 
         <Text style={styles.label}>Email</Text>
         <TextInput
@@ -35,12 +44,14 @@ export default function Login() {
           onChangeText={setSenha}
         />
 
-        <TouchableOpacity style={styles.button}>
-          <Link href={"/(tabs)/obstaculos"} style={styles.buttonText}>Entrar</Link>
-        </TouchableOpacity>
+        <Link href="/hub" asChild>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>Entrar</Text>
+          </TouchableOpacity>
+        </Link>
 
         <Text style={styles.footer}>
-          Não tem uma conta?{" "}
+          Ainda não tem uma conta?{" "}
           <Link href="/cadastro" style={styles.link}>
             Cadastre-se
           </Link>

@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Text, View, FlatList, StyleSheet } from "react-native";
-import CardObstaculo from "../../components/CardObstaculo";
-import Obstaculo from "@/interfaces/Obstaculo";
+import CardObstaculo from "@/components/skatenotes/CardObstaculo";
+import Obstaculo from "../../../interfaces/skatenotes/Obstaculo";
+
+
+
 
 export default function Obstaculos() {
   const [obstaculos, setObstaculos] = useState<Obstaculo[]>([

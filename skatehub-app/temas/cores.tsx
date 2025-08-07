@@ -22,6 +22,9 @@ export const coresDark = {
   cinzaClaro: "#ccc",
   input: "#1f1f1f",
   destaque: "#161616",
-  branco: "#ffffff"
+  branco: "#ffffff",
+  botao: "#ff6f00",          
+  botaoTexto: "#ffffff",     
 };
+
 

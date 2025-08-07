@@ -1,30 +1,36 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { Link } from "expo-router";
 import { useState } from "react";
 import { coresDark as cores } from "@/temas/cores";
 
-export default function Login() {
+export default function cadastro() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [senhaCopia, setSenhaCopia] = useState("");
 
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>SkateNotes</Text>
-      <Text style={styles.subtitle}>Comece sua jornada no skate</Text>
-
+      <Text style={styles.title}>SkateHub</Text>
+      <Text style={styles.subtitle}>Conecte-se ao universo do skate</Text>
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Criar Conta</Text>
-        <Text style={styles.cardSubtitle}>Registre-se para acompanhar seu progresso</Text>
+        <Text style={styles.cardSubtitle}>
+          Acesse os módulos do SkateHub com uma conta só
+        </Text>
 
         <Text style={styles.label}>Nome</Text>
         <TextInput
           style={styles.input}
           placeholder="Ex: João Silva"
           placeholderTextColor={cores.textoPlaceholder}
-          value={email}
+          value={nome}
           onChangeText={setNome}
         />
 
@@ -37,11 +43,10 @@ export default function Login() {
           onChangeText={setEmail}
         />
 
-
         <Text style={styles.label}>Senha</Text>
         <TextInput
           style={styles.input}
-          placeholder="Digite sua senha"
+          placeholder="Crie uma senha"
           placeholderTextColor={cores.textoPlaceholder}
           secureTextEntry
           value={senha}
@@ -51,10 +56,10 @@ export default function Login() {
         <Text style={styles.label}>Confirmar Senha</Text>
         <TextInput
           style={styles.input}
-          placeholder="Digite sua senha novamente"
+          placeholder="Repita a senha"
           placeholderTextColor={cores.textoPlaceholder}
           secureTextEntry
-          value={senha}
+          value={senhaCopia}
           onChangeText={setSenhaCopia}
         />
 
@@ -64,8 +69,8 @@ export default function Login() {
 
         <Text style={styles.footer}>
           Já tem uma conta?{" "}
-          <Link href={"/"} style={styles.link}>
-            Entre agora
+          <Link href="/" style={styles.link}>
+            Faça login
           </Link>
         </Text>
       </View>

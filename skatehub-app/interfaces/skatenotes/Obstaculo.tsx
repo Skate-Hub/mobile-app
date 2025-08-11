@@ -1,7 +1,7 @@
 import Manobra from "./Manobras";
 
 export default interface Obstaculo {
-  id: number;
+  _id: string;
   nome: string;
   manobras: Manobra[]
 }

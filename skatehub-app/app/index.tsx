@@ -1,61 +1,57 @@
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
-import { Link } from "expo-router";
-import { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { coresDark as cores } from "@/temas/cores";
+import { Link } from "expo-router";
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-
+export default function Index() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>SkateHub</Text>
-      <Text style={styles.subtitle}>
-        Acesse seus módulos de skate em um só lugar
-      </Text>
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Entrar</Text>
-        <Text style={styles.cardSubtitle}>
-          Entre e explore os módulos do SkateHub
+      {/* Logo e título */}
+      <View style={styles.header}>
+        <Text style={styles.titulo}>
+          Bem-vindo ao <Text style={{ color: cores.primario }}>SkateHub!</Text>
         </Text>
 
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="seu@email.com"
-          placeholderTextColor={cores.textoPlaceholder}
-          value={email}
-          onChangeText={setEmail}
-        />
+        {/* Bloco de informações organizado */}
+        <View style={styles.infoContainer}>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitulo}>
+              Tudo sobre skate em um só lugar
+            </Text>
+            <Text style={styles.infoTexto}>
+              Treinos, manobras, eventos e até um espaço para mostrar suas conquistas.
+            </Text>
+          </View>
 
-        <Text style={styles.label}>Senha</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite sua senha"
-          placeholderTextColor={cores.textoPlaceholder}
-          secureTextEntry
-          value={senha}
-          onChangeText={setSenha}
-        />
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitulo}>Evolua nas manobras</Text>
+            <Text style={styles.infoTexto}>
+              Facilite sua evolução e acompanhe seu progresso dia a dia.
+            </Text>
+          </View>
 
-        <Link href="/hub" asChild>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Entrar</Text>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitulo}>Ganhe visibilidade</Text>
+            <Text style={styles.infoTexto}>
+              Compartilhe suas manobras, participe de eventos e conecte-se com a
+              comunidade.
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Botões */}
+      <View style={styles.botoesContainer}>
+        <Link href={"/login"} asChild>
+          <TouchableOpacity style={styles.botaoLogin}>
+            <Text style={styles.botaoLoginTexto}>Fazer Login</Text>
           </TouchableOpacity>
         </Link>
 
-        <Text style={styles.footer}>
-          Ainda não tem uma conta?{" "}
-          <Link href="/cadastro" style={styles.link}>
-            Cadastre-se
-          </Link>
-        </Text>
+        <Link href={"/cadastro"} asChild>
+          <TouchableOpacity style={styles.botaoCriarConta}>
+            <Text style={styles.botaoCriarContaTexto}>Criar Conta</Text>
+          </TouchableOpacity>
+        </Link>
       </View>
     </View>
   );
@@ -69,66 +65,82 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 20,
   },
-  title: {
+  header: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 20,
+    borderRadius: 8
+  },
+  titulo: {
+    color: cores.texto,
     fontSize: 28,
     fontWeight: "bold",
-    color: cores.primario,
-    marginBottom: 4,
-  },
-  subtitle: {
-    color: cores.cinzaClaro,
-    fontSize: 14,
+    textAlign: "center",
     marginBottom: 20,
   },
-  card: {
+  infoContainer: {
     width: "100%",
-    backgroundColor: cores.destaque,
-    borderRadius: 12,
+  },
+  infoCard: {
+    backgroundColor: cores.destaque, // cartão com destaque escuro
     padding: 20,
+    borderRadius: 15,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
   },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: cores.texto,
-    textAlign: "center",
-    marginBottom: 4,
-  },
-  cardSubtitle: {
-    color: cores.textoSecundario,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  label: {
-    color: cores.texto,
-    marginBottom: 6,
-    marginTop: 10,
-  },
-  input: {
-    backgroundColor: cores.input,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: cores.texto,
-    marginBottom: 10,
-  },
-  button: {
-    backgroundColor: cores.primario,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  buttonText: {
-    color: cores.branco,
-    fontWeight: "bold",
-  },
-  footer: {
-    marginTop: 16,
-    color: cores.textoSecundario,
-    textAlign: "center",
-  },
-  link: {
+  infoTitulo: {
+    fontSize: 16,
+    fontWeight: "700",
     color: cores.primario,
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  infoTexto: {
+    fontSize: 14,
+    color: cores.textoSecundario,
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  botoesContainer: {
+    width: "100%",
+    marginTop: 20,
+  },
+  botaoLogin: {
+    backgroundColor: cores.botao, // laranja da paleta
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 12,
+    shadowColor: cores.botao,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  botaoLoginTexto: {
+    color: cores.botaoTexto,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  botaoCriarConta: {
+    backgroundColor: cores.fundo,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: cores.primario,
+  },
+  botaoCriarContaTexto: {
+    color: cores.primario,
+    fontSize: 16,
     fontWeight: "bold",
   },
 });

@@ -10,6 +10,12 @@ export default function RootLayout() {
       <Stack.Screen
         name="index"
         options={{
+          animation: "default",
+        }}
+      />
+      <Stack.Screen
+        name="login"
+        options={{
           animation: "slide_from_left",
         }}
       />

@@ -6,88 +6,52 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { coresDark as cores } from "@/temas/cores";
-import { cadastro } from "@/service/auth/cadastro";
+import { login } from "@/service/auth/authService";
 
-export default function Cadastro() {
-  const [nome, setNome] = useState("");
+export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [senhaCopia, setSenhaCopia] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [mostrarSenhaCopia, setMostrarSenhaCopia] = useState(false);
+  const router = useRouter();
 
-  const validarEmail = (email: string) => {
-    const regex = /^\S+@\S+\.\S+$/;
-    return regex.test(email);
-  };
-
-  const realizarCadastro = async () => {
-    if (!nome || !senha || !email || !senhaCopia) {
-      Alert.alert("Erro", "Por favor, preencha todos os campos.");
-      return;
-    }
-
-    if (!validarEmail(email)) {
-      Alert.alert("Erro", "Por favor, insira um email válido.");
-      return;
-    }
-
-    if (senha !== senhaCopia) {
-      Alert.alert("Erro", "As senhas fornecidas não são iguais");
-      return;
-    }
-
-    const result = await cadastro(nome, email, senha);
+  const fazerLogin = async () => {
+    const result = await login(email, senha);
 
     if (!result || result.error) {
-      Alert.alert(
-        "Erro",
-        result?.error || "Não foi possível realizar o cadastro"
-      );
+      Alert.alert("Erro", result?.error || "Não foi possível realizar o login");
       return;
     }
 
-    Alert.alert("Sucesso", "Seu cadastro foi realizado com sucesso!");
+    router.push("/hub");
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>SkateHub</Text>
-      <Text style={styles.subtitle}>Crie sua conta para acessar os módulos</Text>
+      <Text style={styles.subtitle}>
+        Acesse sua conta e explore os módulos
+      </Text>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Criar Conta</Text>
-
-        <Text style={styles.label}>Nome</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: João Silva"
-          placeholderTextColor={cores.textoPlaceholder}
-          value={nome}
-          onChangeText={setNome}
-        />
+        <Text style={styles.cardTitle}>Entrar</Text>
 
         <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
           placeholder="seu@email.com"
-          keyboardType="email-address"
-          autoComplete="email"
-          textContentType="emailAddress"
           placeholderTextColor={cores.textoPlaceholder}
           value={email}
           onChangeText={setEmail}
-          autoCapitalize="none"
         />
 
         <Text style={styles.label}>Senha</Text>
         <View style={styles.senhaContainer}>
           <TextInput
             style={[styles.input, { flex: 1 }]}
-            placeholder="Crie uma senha"
+            placeholder="Digite sua senha"
             placeholderTextColor={cores.textoPlaceholder}
             secureTextEntry={!mostrarSenha}
             value={senha}
@@ -103,34 +67,14 @@ export default function Cadastro() {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.label}>Confirmar Senha</Text>
-        <View style={styles.senhaContainer}>
-          <TextInput
-            style={[styles.input, { flex: 1 }]}
-            placeholder="Repita a senha"
-            placeholderTextColor={cores.textoPlaceholder}
-            secureTextEntry={!mostrarSenhaCopia}
-            value={senhaCopia}
-            onChangeText={setSenhaCopia}
-          />
-          <TouchableOpacity
-            onPress={() => setMostrarSenhaCopia(!mostrarSenhaCopia)}
-            style={styles.botaoMostrarSenha}
-          >
-            <Text style={{ color: cores.primario }}>
-              {mostrarSenhaCopia ? "Ocultar" : "Mostrar"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity style={styles.button} onPress={realizarCadastro}>
-          <Text style={styles.buttonText}>Criar Conta</Text>
+        <TouchableOpacity style={styles.button} onPress={fazerLogin}>
+          <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
 
         <Text style={styles.footer}>
-          Já tem uma conta?{" "}
-          <Link href="/login" style={styles.link}>
-            Faça login
+          Ainda não tem uma conta?{" "}
+          <Link href="/cadastro" style={styles.link}>
+            Cadastre-se
           </Link>
         </Text>
       </View>

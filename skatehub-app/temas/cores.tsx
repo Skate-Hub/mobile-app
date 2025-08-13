@@ -1,17 +1,16 @@
 export const coresLight = {
-  background: "#FFFFFF",         // Fundo principal - branco
-  backgroundSecondary: "#F3F3F3", // Fundo secundário - cinza bem claro
-  text: "#1A1A1A",               // Texto principal - quase preto
-  textSecondary: "#4B4B4B",      // Texto secundário - cinza escuro
-  primary: "#0D47A1",            // Azul mais escuro para contraste
-  primaryLight: "#1976D2",       // Azul um pouco mais claro que o primary
-  accent: "#1565C0",             // Azul intermediário como destaque
-  border: "#DADADA",             // Cinza claro para bordas
-  card: "#FAFAFA",               // Fundo de cartões - quase branco
-  danger: "#D32F2F",             // Erros / alertas
-  success: "#388E3C",            // Sucesso / confirmações
+  fundo: "#FFFFFF",
+  primario: "#ff8000",
+  texto: "#1A1A1A",
+  textoSecundario: "#555555",
+  textoPlaceholder: "#999999",
+  cinzaClaro: "#CCCCCC",
+  input: "#F3F3F3",
+  destaque: "#E0E0E0",
+  branco: "#FFFFFF",
+  botao: "#ff6f00",
+  botaoTexto: "#FFFFFF",
 };
-
 
 export const coresDark = {
   fundo: "#0f0f0f",
@@ -23,8 +22,6 @@ export const coresDark = {
   input: "#1f1f1f",
   destaque: "#161616",
   branco: "#ffffff",
-  botao: "#ff6f00",          
-  botaoTexto: "#ffffff",     
+  botao: "#ff6f00",
+  botaoTexto: "#ffffff",
 };
-
-

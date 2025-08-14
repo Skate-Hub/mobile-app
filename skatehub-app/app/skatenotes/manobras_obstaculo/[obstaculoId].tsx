@@ -1,6 +1,11 @@
 import { Text, View } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 
 export default function Manobras_Obstaculo() {
+
+  const params = useLocalSearchParams();
+  const { obstaculoId } = params
+
   return (
     <View
       style={{
@@ -9,7 +14,7 @@ export default function Manobras_Obstaculo() {
         alignItems: "center",
       }}
     >
-      <Text>Manobras de um obstáculo.</Text>
+      <Text>{obstaculoId}</Text>
     </View>
   );
 }

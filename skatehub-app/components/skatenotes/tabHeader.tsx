@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { coresDark } from "@/temas/cores";
 
 interface TabHeaderProps {
   title: string;
@@ -35,7 +36,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 16,
     paddingHorizontal: 20,
-    backgroundColor: "#0F0F0F",
+    backgroundColor: coresDark.destaque,
   },
   title: {
     fontSize: 20,

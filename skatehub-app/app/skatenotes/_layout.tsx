@@ -7,9 +7,15 @@ export default function RootLayout() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="manobras_obstaculo"/>
       <Stack.Screen name="observacoes" />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="configuracoes" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen
+        name="manobras_obstaculo/[obstaculoId]"
+        options={{
+          animation: "slide_from_left",
+        }}
+      />
     </Stack>
   );
 }

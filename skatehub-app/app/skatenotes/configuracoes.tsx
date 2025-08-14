@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-export default function Configurações() {
+export default function Configuracoes() {
   return (
     <View
       style={{

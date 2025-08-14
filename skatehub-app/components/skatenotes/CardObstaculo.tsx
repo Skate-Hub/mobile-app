@@ -1,25 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import Obstaculo from "../../interfaces/skatenotes/Obstaculo";
+import ModalOptions from "./modals/options";
 
 interface CardObstaculoProps {
   obstaculo: Obstaculo;
-  onEdit: (item: Obstaculo) => void;
-  onDelete: (item: Obstaculo) => void;
+  onPress: () => void;
 }
 
 export default function CardObstaculo({
   obstaculo,
-  onEdit,
-  onDelete,
+  onPress,
 }: CardObstaculoProps) {
+  const [modalOptionsVisible, setModalOptionsVisible] = useState(false);
+
+  const abrirModalOptions = () => {
+    setModalOptionsVisible(true);
+  };
+
+  const onEdit = () => {
+    console.log("editar")
+  }
+
+  
+  const onDelete = () => {
+    console.log("excluir")
+  }
+
   return (
     <View style={styles.card}>
-      {/* Área clicável do card para editar/ver */}
+      {/* Área clicável principal */}
       <TouchableOpacity
         style={styles.infoContainer}
-        onPress={() => onEdit(obstaculo)}
+        onPress={onPress}
         activeOpacity={0.7}
       >
         <View>
@@ -31,17 +45,26 @@ export default function CardObstaculo({
         </View>
       </TouchableOpacity>
 
-      {/* Área dos ícones à direita */}
+      {/* Botão de opções */}
       <View style={styles.icons}>
         <Ionicons name="chevron-forward" size={18} color="#aaa" />
         <TouchableOpacity
           style={styles.moreButton}
-          onPress={() => onDelete(obstaculo)}
+          onPress={abrirModalOptions}
           activeOpacity={0.6}
         >
           <MaterialIcons name="more-vert" size={20} color="#aaa" />
         </TouchableOpacity>
       </View>
+
+      {/* Modal de Opções */}
+      <ModalOptions
+        visible={modalOptionsVisible}
+        onClose={() => setModalOptionsVisible(false)}
+        onEditConfirm={() => onEdit()}
+        onDeleteConfirm={() => onDelete()}
+        obstaculo={obstaculo}
+      />
     </View>
   );
 }
@@ -56,12 +79,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     backgroundColor: "#1C1C1C",
     borderRadius: 12,
+    height: 100,
   },
   infoContainer: {
     flex: 1, // ocupa todo espaço à esquerda
   },
   nome: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
     color: "#fff",
   },

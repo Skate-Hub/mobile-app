@@ -1,103 +1,104 @@
-// components/skatenotes/ModalAdicionarObstaculo.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Modal,
-  View,
   Text,
-  TextInput,
-  TouchableOpacity,
+  View,
+  FlatList,
   StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  Platform,
 } from "react-native";
+import CardObstaculo from "@/components/skatenotes/CardObstaculo";
+import Obstaculo from "../../../interfaces/skatenotes/Obstaculo";
+import { buscarObstaculos } from "@/service/skatenotes/obstaculoService";
+import TabHeader from "@/components/skatenotes/tabHeader";
+import { useRouter } from "expo-router";
 import { coresDark as cores } from "@/temas/cores";
-import { adicionarObstaculo } from "@/service/skatenotes/obstaculoService";
+import ModalAdicionarObstaculo from "../../../components/skatenotes/modals/adicionarObstaculo";
 
-interface ModalAdicionarObstaculoProps {
-  visible: boolean;
-  onClose: () => void;
-}
+export default function Obstaculos() {
+  const router = useRouter();
+  const [obstaculos, setObstaculos] = useState<Obstaculo[]>([]);
+  const [modalAddVisible, setModalAddVisible] = useState(false);
 
-export default function ModalAdicionarObstaculo({
-  visible,
-  onClose,
+  async function carregarObstaculos() {
+    const result = await buscarObstaculos();
+    if (!result.success) {
+      console.error("Erro ao buscar obstáculos:", result.error);
+      return;
+    }
+    setObstaculos(result.data || []);
+  }
 
-}: ModalAdicionarObstaculoProps) {
-  const [nome, setNome] = useState("");
+  useEffect(() => {
+    carregarObstaculos();
+  }, []);
 
-  const handleAdd = () => {
-    if (!nome.trim()) return;
-    adicionarObstaculo(nome); 
-    setNome(""); 
-    onClose();
-  };
-
-  const handleClose = () => {
-    setNome("");
-    onClose();
+  const handleOnAdd = () => {
+    setModalAddVisible(true);
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          <Text style={styles.title}>Adicionar Obstáculo</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Nome do obstáculo"
-            placeholderTextColor={cores.textoPlaceholder}
-            value={nome}
-            onChangeText={setNome}
-          />
-          <View style={styles.buttons}>
-            <TouchableOpacity style={[styles.button, { backgroundColor: cores.destaque }]} onPress={handleClose}>
-              <Text style={{ color: cores.texto }}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, { backgroundColor: cores.primario }]} onPress={handleAdd}>
-              <Text style={{ color: cores.branco }}>Adicionar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+    <SafeAreaView style={styles.container}>
+      <TabHeader
+        title="Obstáculos"
+        onAdd={handleOnAdd}
+        onSettings={() => router.push("../configuracoes")}
+      />
+
+      <View style={styles.content}>
+        <FlatList<Obstaculo>
+          contentContainerStyle={styles.lista}
+          data={obstaculos}
+          keyExtractor={(item) => item._id.toString()}
+          renderItem={({ item }) => (
+            <CardObstaculo
+              obstaculo={item}
+              onPress={() => {
+                router.push(`/skatenotes/manobras_obstaculo/${item._id}`);
+              }}
+              onSave={carregarObstaculos}
+            />
+          )}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>Nenhum obstáculo encontrado.</Text>
+          }
+        />
       </View>
-    </Modal>
+
+      <ModalAdicionarObstaculo
+        visible={modalAddVisible}
+        onClose={() => setModalAddVisible(false)}
+        onSave={carregarObstaculos}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
   container: {
-    width: "85%",
-    backgroundColor: cores.destaque,
-    borderRadius: 12,
-    padding: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: cores.texto,
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  input: {
-    backgroundColor: cores.input,
-    color: cores.texto,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 20,
-  },
-  buttons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  button: {
     flex: 1,
+    backgroundColor: cores.fundo,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 10,
+  },
+  lista: {
+    paddingBottom: 24,
+  },
+  emptyText: {
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
+    color: cores.textoSecundario,
+    backgroundColor: cores.fundoElevado,
     paddingVertical: 12,
+    paddingHorizontal: 16,
     borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: cores.borda,
+    alignSelf: "center",
   },
 });

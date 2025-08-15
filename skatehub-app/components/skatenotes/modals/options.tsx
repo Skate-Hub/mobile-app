@@ -15,8 +15,8 @@ interface ModalOptionsProps {
   visible: boolean;
   onClose: () => void;
   obstaculo: Obstaculo;
-  onEditConfirm: (novoNome: string) => void;
-  onDeleteConfirm: () => void;
+  onEditConfirm: (novoNome: string, obstaculoId: string) => void;
+  onDeleteConfirm: (obstaculoId: string) => void;
 }
 
 export default function ModalOptions({
@@ -31,7 +31,7 @@ export default function ModalOptions({
 
   const resetar = () => {
     setModo("menu");
-    setNovoNome(obstaculo.nome);
+    setNovoNome(novoNome);
   };
 
   const fechar = () => {
@@ -77,7 +77,7 @@ export default function ModalOptions({
                     <TouchableOpacity
                       style={[styles.button, { backgroundColor: cores.primario }]}
                       onPress={() => {
-                        onDeleteConfirm();
+                        onDeleteConfirm(obstaculo._id);
                         fechar();
                       }}
                     >
@@ -97,6 +97,7 @@ export default function ModalOptions({
               {modo === "editar" && (
                 <>
                   <Text style={styles.titulo}>Digite o novo nome:</Text>
+                  <Text style={styles.h2}>Não será aceita a confirmação em branco</Text>
                   <TextInput
                     style={styles.input}
                     value={novoNome}
@@ -109,7 +110,7 @@ export default function ModalOptions({
                     <TouchableOpacity
                       style={[styles.button, { backgroundColor: cores.destaque }]}
                       onPress={() => {
-                        onEditConfirm(novoNome.trim());
+                        onEditConfirm(novoNome, obstaculo._id);
                         fechar();
                       }}
                     >
@@ -150,6 +151,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: cores.texto,
+    marginBottom: 10,
+  },
+  h2: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: cores.textoSecundario,
     marginBottom: 10,
   },
   nome: {

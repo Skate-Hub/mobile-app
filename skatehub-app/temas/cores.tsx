@@ -24,4 +24,17 @@ export const coresDark = {
   branco: "#ffffff",
   botao: "#ff6f00",
   botaoTexto: "#ffffff",
+
+  fundoElevado: "#1a1a1a",
+  fundoClaro: "#2a2a2a",
+  borda: "#333333",
+  sombra: "rgba(0, 0, 0, 0.5)",
+
+  sucesso: "#4CAF50",
+  aviso: "#FFC107",
+  erro: "#F44336",
+  info: "#2196F3",
+
+  primarioHover: "#ff9933",
+  primarioAtivo: "#cc6600",
 };

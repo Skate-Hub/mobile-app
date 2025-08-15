@@ -11,35 +11,32 @@ import {
 import CardObstaculo from "@/components/skatenotes/CardObstaculo";
 import Obstaculo from "../../../interfaces/skatenotes/Obstaculo";
 import { buscarObstaculos } from "@/service/skatenotes/obstaculoService";
-import TabHeader from "@/components/skatenotes/TabHeader";
+import TabHeader from "@/components/skatenotes/tabHeader";
 import { useRouter } from "expo-router";
 import { coresDark as cores } from "@/temas/cores";
 import ModalAdicionarObstaculo from "../../../components/skatenotes/modals/adicionarObstaculo";
-
 
 export default function Obstaculos() {
   const router = useRouter();
   const [obstaculos, setObstaculos] = useState<Obstaculo[]>([]);
   const [modalAddVisible, setModalAddVisible] = useState(false);
 
-
-  useEffect(() => {
-    async function carregarObstaculos() {
-      const result = await buscarObstaculos();
-      if (!result.success) {
-        console.error("Erro ao buscar obstáculos:", result.error);
-        return;
-      }
-      setObstaculos(result.data || []);
+  async function carregarObstaculos() {
+    const result = await buscarObstaculos();
+    if (!result.success) {
+      console.error("Erro ao buscar obstáculos:", result.error);
+      return;
     }
+    setObstaculos(result.data || []);
+  }
+  
+  useEffect(() => {
     carregarObstaculos();
-  }, [obstaculos]);
+  }, []);
 
   const handleOnAdd = () => {
     setModalAddVisible(true);
   };
-
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -57,9 +54,10 @@ export default function Obstaculos() {
             <CardObstaculo
               obstaculo={item}
               onPress={() => {
-                router.push(`/skatenotes/manobras_obstaculo/${item._id}`)
+                router.push(`/skatenotes/manobras_obstaculo/${item._id}`);
               }}
-            />
+              onSave={carregarObstaculos}
+            />  
           )}
           ListEmptyComponent={
             <Text style={styles.emptyText}>Nenhum obstáculo encontrado.</Text>
@@ -70,6 +68,7 @@ export default function Obstaculos() {
       <ModalAdicionarObstaculo
         visible={modalAddVisible}
         onClose={() => setModalAddVisible(false)}
+        onSave={carregarObstaculos}
       />
     </SafeAreaView>
   );

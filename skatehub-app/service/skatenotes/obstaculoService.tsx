@@ -1,12 +1,12 @@
 import Obstaculo from "@/interfaces/skatenotes/Obstaculo";
 import { getToken } from "../asyncStorage";
+import { logErro } from "../utils/LogErro";
 
-// Função utilitária para logs de erro
-const logErro = (func: string, mensagem: string | unknown, err?: unknown) => {
-  console.error(`[${func}] ${mensagem}`, err ?? "");
-};
-
-export const buscarObstaculos = async (): Promise<{ success: boolean; data?: Obstaculo[]; error?: string }> => {
+export const buscarObstaculos = async (): Promise<{
+  success: boolean;
+  data?: Obstaculo[];
+  error?: string;
+}> => {
   const funcName = "buscarObstaculos";
   try {
     const token = await getToken();
@@ -15,13 +15,16 @@ export const buscarObstaculos = async (): Promise<{ success: boolean; data?: Obs
       return { success: false, error: "Token não encontrado" };
     }
 
-    const response = await fetch("https://skatenotes-production.up.railway.app/obstaculos", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      "https://skatenotes-production.up.railway.app/obstaculos",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (!response.ok) {
       const msg = `Erro na requisição: ${response.status} ${response.statusText}`;
@@ -37,7 +40,9 @@ export const buscarObstaculos = async (): Promise<{ success: boolean; data?: Obs
   }
 };
 
-export const adicionarObstaculo = async (nome: string): Promise<{ success: boolean; error?: string }> => {
+export const adicionarObstaculo = async (
+  nome: string
+): Promise<{ success: boolean; error?: string }> => {
   const funcName = "adicionarObstaculo";
   try {
     const token = await getToken();
@@ -46,14 +51,17 @@ export const adicionarObstaculo = async (nome: string): Promise<{ success: boole
       return { success: false, error: "Token não encontrado" };
     }
 
-    const response = await fetch("https://skatenotes-production.up.railway.app/obstaculos", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ nome }),
-    });
+    const response = await fetch(
+      "https://skatenotes-production.up.railway.app/obstaculos",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ nome }),
+      }
+    );
 
     if (!response.ok) {
       const msg = `Erro na requisição: ${response.status} ${response.statusText}`;
@@ -65,5 +73,62 @@ export const adicionarObstaculo = async (nome: string): Promise<{ success: boole
   } catch (err) {
     logErro(funcName, "Erro ao adicionar obstáculos", err);
     return { success: false, error: "Erro ao adicionar obstáculos" };
+  }
+};
+
+export const editarObstaculo = async (
+  novoNome: string,
+  obstaculoId: string
+): Promise<{ success: boolean; error?: string }> => {
+  const funcName = "editarObstaculo";
+  try {
+
+    const response = await fetch(
+      `https://skatenotes-production.up.railway.app/obstaculos/${obstaculoId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ novoNome }),
+      }
+    );
+
+    if (!response.ok) {
+      const msg = `Erro na requisição: ${response.status} ${response.statusText}`;
+      logErro(funcName, msg);
+      return { success: false, error: msg };
+    }
+
+    return { success: true };
+  } catch (err) {
+    logErro(funcName, "Erro ao editar obstáculo", err);
+    return { success: false, error: "Erro ao editar obstáculo" };
+  }
+};
+
+export const excluirObstaculo = async (
+  obstaculoId: string
+): Promise<{ success: boolean; error?: string }> => {
+  const funcName = "excluirObstaculo";
+  try {
+
+    const response = await fetch(
+      `https://skatenotes-production.up.railway.app/obstaculos/${obstaculoId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      const msg = `Erro na requisição: ${response.status} ${response.statusText}`;
+      logErro(funcName, msg);
+      return { success: false, error: msg };
+    }
+
+    return { success: true };
+  } catch (err) {
+    logErro(funcName, "Erro ao excluir obstáculo", err);
+    return { success: false, error: "Erro ao excluir obstáculo" };
   }
 };

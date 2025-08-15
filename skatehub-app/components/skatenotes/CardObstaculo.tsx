@@ -3,15 +3,18 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import Obstaculo from "../../interfaces/skatenotes/Obstaculo";
 import ModalOptions from "./modals/options";
+import { editarObstaculo, excluirObstaculo } from "@/service/skatenotes/obstaculoService";
 
 interface CardObstaculoProps {
   obstaculo: Obstaculo;
   onPress: () => void;
+  onSave: () => void;
 }
 
 export default function CardObstaculo({
   obstaculo,
   onPress,
+  onSave,
 }: CardObstaculoProps) {
   const [modalOptionsVisible, setModalOptionsVisible] = useState(false);
 
@@ -19,14 +22,15 @@ export default function CardObstaculo({
     setModalOptionsVisible(true);
   };
 
-  const onEdit = () => {
-    console.log("editar")
-  }
+  const onEdit = async (novoNome: string, obstaculoId: string) => {
+    await editarObstaculo(novoNome, obstaculoId);
+    await onSave();
+  };
 
-  
-  const onDelete = () => {
-    console.log("excluir")
-  }
+  const onDelete = async (obstaculoId: string) => {
+    await excluirObstaculo(obstaculoId)
+    await onSave();
+  };
 
   return (
     <View style={styles.card}>
@@ -61,8 +65,8 @@ export default function CardObstaculo({
       <ModalOptions
         visible={modalOptionsVisible}
         onClose={() => setModalOptionsVisible(false)}
-        onEditConfirm={() => onEdit()}
-        onDeleteConfirm={() => onDelete()}
+        onEditConfirm={onEdit}
+        onDeleteConfirm={onDelete}
         obstaculo={obstaculo}
       />
     </View>

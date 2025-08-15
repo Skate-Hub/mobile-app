@@ -39,7 +39,7 @@ export const buscarManobrasObstaculo = async (
 export const buscarTodasManobras = async (): Promise<{
   success: boolean;
   error?: string;
-  data?: Manobra[]
+  data?: Manobra[];
 }> => {
   const funcName = "buscarTodasManobras";
   try {
@@ -54,8 +54,8 @@ export const buscarTodasManobras = async (): Promise<{
       {
         method: "GET",
         headers: {
-            Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       }
     );
 
@@ -65,11 +65,45 @@ export const buscarTodasManobras = async (): Promise<{
       return { success: false, error: msg };
     }
 
-    const data: Manobra[] = await response.json(); 
+    const data: Manobra[] = await response.json();
 
-    return {success: true, data};
+    return { success: true, data };
   } catch (err) {
     logErro(funcName, "Erro ao buscar manobras do usuario", err);
     return { success: false, error: "Erro ao buscar manobras do usuario" };
+  }
+};
+
+export const adicionarManobra = async (
+  obstaculoId: string,
+  nome: string,
+  status: string
+): Promise<{ success: boolean; error?: string }> => {
+  const funcName = "adicionarManobra";
+  try {
+    const response = await fetch(
+      `https://skatenotes-production.up.railway.app/manobrasObstaculo/${obstaculoId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome: nome,
+          status: status,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const msg = `Erro na requisição: ${response.status} ${response.statusText}`;
+      logErro(funcName, msg);
+      return { success: false, error: msg };
+    }
+
+    return { success: true };
+  } catch (err) {
+    logErro(funcName, "Erro ao adicionar manobra", err);
+    return { success: false, error: "Erro ao adicionar manobra" };
   }
 };

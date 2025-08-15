@@ -1,4 +1,4 @@
 export default interface Observacoes {
-    id: number;
+    id: string;
     link: String;
 }

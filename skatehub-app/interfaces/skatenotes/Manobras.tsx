@@ -1,8 +1,10 @@
 import Observacoes from "./Observacoes";
 
+type StatusManobra = "Na Base" | "Aprimorar" | "Aprender";
+
 export default interface Manobra {
-  _id: number;
+  _id: string;
   nome: string;
-  status: string;
+  status: StatusManobra;
   observacoes?: Observacoes[];
 }

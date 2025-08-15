@@ -25,7 +25,7 @@ export default function Obstaculos() {
     const result = await buscarObstaculos();
     if (!result.success) {
       console.error("Erro ao buscar obstáculos:", result.error);
-      return;
+    return;
     }
     setObstaculos(result.data || []);
   }

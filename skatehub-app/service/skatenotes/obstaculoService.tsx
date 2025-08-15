@@ -40,6 +40,44 @@ export const buscarObstaculos = async (): Promise<{
   }
 };
 
+export const buscarObstaculoById = async (obstaculoId: string): Promise<{
+  success: boolean;
+  data?: Obstaculo[];
+  error?: string;
+}> => {
+  const funcName = "buscarObstaculoById";
+  try {
+    const token = await getToken();
+    if (!token) {
+      logErro(funcName, "Token não encontrado");
+      return { success: false, error: "Token não encontrado" };
+    }
+
+    const response   = await fetch(
+      `https://skatenotes-production.up.railway.app/obstaculos/${obstaculoId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const msg = `Erro na requisição: ${response.status} ${response.statusText}`;
+      logErro(funcName, msg);
+      return { success: false, error: msg };
+    }
+
+    const data: Obstaculo[] = await response.json();
+    return { success: true, data };
+  } catch (err) {
+    logErro(funcName, "Erro ao buscar obstáculo", err);
+    return { success: false, error: "Erro ao buscar obstáculo" };
+  }
+};
+
 export const adicionarObstaculo = async (
   nome: string
 ): Promise<{ success: boolean; error?: string }> => {

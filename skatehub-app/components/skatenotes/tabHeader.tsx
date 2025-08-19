@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { coresDark } from "@/temas/cores";
 
 interface TabHeaderProps {
-  title: string;
+  title?: string;
   onAdd?: () => void;
   onSettings?: () => void;
 }

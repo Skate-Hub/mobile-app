@@ -53,3 +53,33 @@ export const removeLogin = async () => {
     console.error("Erro ao remover login:", error);
   }
 };
+
+
+// storageObservacoes.ts
+const OBSERVACOES_KEY = "@observacoes";
+
+export const salvarObservacoesLocal = async (manobraId: string, texto: string) => {
+  try {
+    await AsyncStorage.setItem(`${OBSERVACOES_KEY}:${manobraId}`, texto);
+  } catch (err) {
+    console.error("Erro ao salvar observações localmente:", err);
+  }
+};
+
+export const carregarObservacoesLocal = async (manobraId: string) => {
+  try {
+    const texto = await AsyncStorage.getItem(`${OBSERVACOES_KEY}:${manobraId}`);
+    return texto || "";
+  } catch (err) {
+    console.error("Erro ao carregar observações localmente:", err);
+    return "";
+  }
+};
+
+export const limparObservacoesLocal = async (manobraId: string) => {
+  try {
+    await AsyncStorage.removeItem(`${OBSERVACOES_KEY}:${manobraId}`);
+  } catch (err) {
+    console.error("Erro ao limpar observações localmente:", err);
+  }
+};

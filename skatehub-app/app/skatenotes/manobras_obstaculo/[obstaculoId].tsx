@@ -7,9 +7,9 @@ import {
   SafeAreaView,
   FlatList,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { coresDark as cores } from "@/temas/cores";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { buscarObstaculoById } from "@/service/skatenotes/obstaculoService";
 import Obstaculo from "@/interfaces/skatenotes/Obstaculo";
 import TabHeader from "@/components/skatenotes/tabHeader";
@@ -17,6 +17,7 @@ import ModalAdicionarManobra from "@/components/skatenotes/modals/adicionarManob
 import CardManobra from "@/components/skatenotes/CardManobra";
 
 export default function Manobras_Obstaculo() {
+  const router = useRouter();
   const params = useLocalSearchParams();
   const { obstaculoId } = params;
 
@@ -32,11 +33,11 @@ export default function Manobras_Obstaculo() {
     setObstaculo(result.data || null);
   }
 
-  useEffect(() => {
-    if (obstaculoId) {
+  useFocusEffect(
+    useCallback(() => {
       carregarObstaculo(obstaculoId.toString());
-    }
-  }, [obstaculoId]);
+    }, [])
+  );
 
   const handleAdd = () => {
     setModalAddManobraVisible(true);
@@ -44,7 +45,11 @@ export default function Manobras_Obstaculo() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TabHeader title={obstaculo?.nome || "Obstáculo"} onAdd={handleAdd} />
+      <TabHeader
+        title={obstaculo?.nome || "Obstáculo"}
+        onAdd={handleAdd}
+        onSettings={() => router.push("/skatenotes/configuracoes")}
+      />
 
       {!obstaculo && <Text style={styles.emptyText}>Carregando...</Text>}
 
@@ -55,14 +60,18 @@ export default function Manobras_Obstaculo() {
       {obstaculo && obstaculo.manobras && obstaculo.manobras.length > 0 && (
         <FlatList
           data={obstaculo.manobras}
-          keyExtractor={(item) => item._id.toString()} 
+          keyExtractor={(item) => item._id.toString()}
           contentContainerStyle={{ padding: 10 }}
           renderItem={({ item }) => (
             <CardManobra
               nome={item.nome}
               status={item.status}
-              obstaculo={obstaculo.nome}
-              onPress={() => console.log("clicou na manobra", item.nome)}
+              onPress={() => {
+                router.push({
+                  pathname: "/skatenotes/detalhes_manobra/[manobraId]",
+                  params: { manobraId: item._id },
+                });
+              }}
             />
           )}
         />
@@ -75,6 +84,7 @@ export default function Manobras_Obstaculo() {
           console.log("atualizou");
           if (obstaculoId) carregarObstaculo(obstaculoId.toString());
         }}
+        obstaculoId={obstaculoId.toString()}
       />
     </SafeAreaView>
   );

@@ -10,17 +10,20 @@ import {
 import { coresDark as cores } from "@/temas/cores";
 import { adicionarManobra } from "@/service/skatenotes/manobras";
 import { Ionicons } from "@expo/vector-icons";
+import Obstaculo from "@/interfaces/skatenotes/Obstaculo";
 
 interface ModalAdicionarManobraProps {
   visible: boolean;
   onClose: () => void;
   onSave: () => void;
+  obstaculoId: string;
 }
 
 export default function ModalAdicionarManobra({
   visible,
   onClose,
   onSave,
+  obstaculoId
 }: ModalAdicionarManobraProps) {
   const [nome, setNome] = useState("");
   const [status, setStatus] = useState<"Aprender" | "Aprimorar" | "Na Base">(
@@ -37,7 +40,7 @@ export default function ModalAdicionarManobra({
   const handleAdd = async () => {
     if (!nome.trim()) return;
 
-    const result = await adicionarManobra(nome, status);
+    const result = await adicionarManobra(obstaculoId, nome, status);
     if (!result.success) return;
 
     setNome("");

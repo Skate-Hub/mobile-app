@@ -5,7 +5,6 @@ import { Ionicons } from "@expo/vector-icons";
 
 interface CardManobraProps {
   nome: string;
-  obstaculo: string;
   status: "Na Base" | "Aprimorar" | "Aprender";
   corStatus?: string;
   onPress: () => void;

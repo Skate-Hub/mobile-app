@@ -42,7 +42,7 @@ export const buscarObstaculos = async (): Promise<{
 
 export const buscarObstaculoById = async (obstaculoId: string): Promise<{
   success: boolean;
-  data?: Obstaculo[];
+  data?: Obstaculo;
   error?: string;
 }> => {
   const funcName = "buscarObstaculoById";
@@ -70,7 +70,7 @@ export const buscarObstaculoById = async (obstaculoId: string): Promise<{
       return { success: false, error: msg };
     }
 
-    const data: Obstaculo[] = await response.json();
+    const data: Obstaculo = await response.json();
     return { success: true, data };
   } catch (err) {
     logErro(funcName, "Erro ao buscar obstáculo", err);

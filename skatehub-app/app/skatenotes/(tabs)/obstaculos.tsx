@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -12,7 +12,7 @@ import CardObstaculo from "@/components/skatenotes/CardObstaculo";
 import Obstaculo from "../../../interfaces/skatenotes/Obstaculo";
 import { buscarObstaculos } from "@/service/skatenotes/obstaculoService";
 import TabHeader from "@/components/skatenotes/tabHeader";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { coresDark as cores } from "@/temas/cores";
 import ModalAdicionarObstaculo from "../../../components/skatenotes/modals/adicionarObstaculo";
 
@@ -29,10 +29,12 @@ export default function Obstaculos() {
     }
     setObstaculos(result.data || []);
   }
-  
-  useEffect(() => {
-    carregarObstaculos();
-  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarObstaculos();
+    }, [])
+  );
 
   const handleOnAdd = () => {
     setModalAddVisible(true);
@@ -54,10 +56,13 @@ export default function Obstaculos() {
             <CardObstaculo
               obstaculo={item}
               onPress={() => {
-                router.push(`/skatenotes/manobras_obstaculo/${item._id}`);
+                router.push({
+                  pathname: "/skatenotes/manobras_obstaculo/[obstaculoId]",
+                  params: { obstaculoId: item._id },
+                });
               }}
               onSave={carregarObstaculos}
-            />  
+            />
           )}
           ListEmptyComponent={
             <Text style={styles.emptyText}>Nenhum obstáculo encontrado.</Text>

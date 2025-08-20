@@ -1,104 +1,119 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  Text,
+  Modal,
   View,
-  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  Platform,
 } from "react-native";
-import CardObstaculo from "@/components/skatenotes/CardObstaculo";
-import Obstaculo from "../../../interfaces/skatenotes/Obstaculo";
-import { buscarObstaculos } from "@/service/skatenotes/obstaculoService";
-import TabHeader from "@/components/skatenotes/tabHeader";
-import { useRouter } from "expo-router";
 import { coresDark as cores } from "@/temas/cores";
-import ModalAdicionarObstaculo from "../../../components/skatenotes/modals/adicionarObstaculo";
+import { adicionarObstaculo } from "@/service/skatenotes/obstaculoService";
 
-export default function Obstaculos() {
-  const router = useRouter();
-  const [obstaculos, setObstaculos] = useState<Obstaculo[]>([]);
-  const [modalAddVisible, setModalAddVisible] = useState(false);
+interface ModalAdicionarObstaculoProps {
+  visible: boolean;
+  onClose: () => void;
+  onSave: () => void;
+}
 
-  async function carregarObstaculos() {
-    const result = await buscarObstaculos();
-    if (!result.success) {
-      console.error("Erro ao buscar obstáculos:", result.error);
-      return;
-    }
-    setObstaculos(result.data || []);
-  }
+export default function ModalAdicionarObstaculo({
+  visible,
+  onClose,
+  onSave,
+}: ModalAdicionarObstaculoProps) {
+  const [nome, setNome] = useState("");
 
-  useEffect(() => {
-    carregarObstaculos();
-  }, []);
+  const handleAdd = async () => {
+    if (!nome.trim()) return;
 
-  const handleOnAdd = () => {
-    setModalAddVisible(true);
+    // Aguarda a criação do obstáculo no backend
+    const result = await adicionarObstaculo(nome);
+    if (!result.success) return; // opcional: mostrar mensagem de erro
+
+    // Limpa o input
+    setNome("");
+
+    // Atualiza a lista de obstáculos
+    await onSave();
+
+    // Fecha o modal
+    onClose();
+  };
+
+  const handleClose = () => {
+    setNome("");
+    onClose();
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TabHeader
-        title="Obstáculos"
-        onAdd={handleOnAdd}
-        onSettings={() => router.push("../configuracoes")}
-      />
-
-      <View style={styles.content}>
-        <FlatList<Obstaculo>
-          contentContainerStyle={styles.lista}
-          data={obstaculos}
-          keyExtractor={(item) => item._id.toString()}
-          renderItem={({ item }) => (
-            <CardObstaculo
-              obstaculo={item}
-              onPress={() => {
-                router.push(`/skatenotes/manobras_obstaculo/${item._id}`);
-              }}
-              onSave={carregarObstaculos}
-            />
-          )}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>Nenhum obstáculo encontrado.</Text>
-          }
-        />
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Adicionar Obstáculo</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nome do obstáculo"
+            placeholderTextColor={cores.textoPlaceholder}
+            value={nome}
+            onChangeText={setNome}
+          />
+          <View style={styles.buttons}>
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: cores.destaque }]}
+              onPress={handleClose}
+            >
+              <Text style={{ color: cores.texto }}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: cores.primario }]}
+              onPress={handleAdd}
+            >
+              <Text style={{ color: cores.branco }}>Adicionar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
-
-      <ModalAdicionarObstaculo
-        visible={modalAddVisible}
-        onClose={() => setModalAddVisible(false)}
-        onSave={carregarObstaculos}
-      />
-    </SafeAreaView>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
-    flex: 1,
-    backgroundColor: cores.fundo,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    width: "85%",
+    backgroundColor: cores.destaque,
+    borderRadius: 12,
+    padding: 20,
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 10,
-  },
-  lista: {
-    paddingBottom: 24,
-  },
-  emptyText: {
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: cores.texto,
+    marginBottom: 12,
     textAlign: "center",
-    marginTop: 20,
-    fontSize: 16,
-    color: cores.textoSecundario,
-    backgroundColor: cores.fundoElevado,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+  },
+  input: {
+    backgroundColor: cores.input,
+    color: cores.texto,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: cores.borda,
-    alignSelf: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 20,
+  },
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginHorizontal: 5,
   },
 });

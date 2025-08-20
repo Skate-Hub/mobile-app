@@ -5,24 +5,51 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Switch,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { coresDark as cores } from "@/temas/cores";
 import { login } from "@/service/auth/authService";
+import {
+  getLoginSalvo,
+  salvaLogin,
+  removeLogin,
+} from "@/service/asyncStorage"
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [lembrar, setLembrar] = useState(false);
   const router = useRouter();
 
-  const fazerLogin = async () => {
-    const result = await login(email, senha);
+  useEffect(() => {
+    const checarLoginSalvo = async () => {
+      const loginSalvo = await getLoginSalvo();
+      if (loginSalvo) {
+        setEmail(loginSalvo.email);
+        setSenha(loginSalvo.senha);
+        setLembrar(true);
+        await fazerLogin(loginSalvo.email, loginSalvo.senha);
+      }
+    };
+
+    checarLoginSalvo();
+  }, []);
+
+  const fazerLogin = async (loginEmail = email, loginSenha = senha) => {
+    const result = await login(loginEmail, loginSenha);
 
     if (!result || result.error) {
       Alert.alert("Erro", result?.error || "Não foi possível realizar o login");
       return;
+    }
+
+    if (lembrar) {
+      await salvaLogin(loginEmail, loginSenha);
+    } else {
+      await removeLogin();
     }
 
     router.push("/hub");
@@ -31,9 +58,7 @@ export default function Login() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>SkateHub</Text>
-      <Text style={styles.subtitle}>
-        Acesse sua conta e explore os módulos
-      </Text>
+      <Text style={styles.subtitle}>Acesse sua conta e explore os módulos</Text>
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Entrar</Text>
@@ -67,7 +92,17 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={fazerLogin}>
+        <View style={styles.lembrarContainer}>
+          <Text style={{ color: cores.texto }}>Lembrar de mim</Text>
+          <Switch
+            value={lembrar}
+            onValueChange={setLembrar}
+            trackColor={{ false: "#767577", true: cores.primario }}
+            thumbColor={lembrar ? cores.branco : "#f4f3f4"}
+          />
+        </View>
+
+        <TouchableOpacity style={styles.button} onPress={() => fazerLogin()}>
           <Text style={styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
 
@@ -135,6 +170,12 @@ const styles = StyleSheet.create({
   botaoMostrarSenha: {
     paddingHorizontal: 12,
     paddingVertical: 10,
+  },
+  lembrarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginVertical: 10,
   },
   button: {
     backgroundColor: cores.primario,

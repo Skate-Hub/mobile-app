@@ -1,7 +1,6 @@
 export default interface Anexo {
-  _id?: string; 
   url: string;
-  caminhoFirebase: string;
+  serverPath: string;
   tipo: "imagem" | "video";
   nomeOriginal: string;
   tamanho: number;

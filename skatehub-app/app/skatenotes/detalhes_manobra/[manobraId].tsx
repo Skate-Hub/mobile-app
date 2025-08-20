@@ -11,27 +11,22 @@ import {
   StyleSheet,
 } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import {
-  atualizarStatus,
-  buscarManobraById,
-  deletarManobra,
-  editarManobra,
-  adicionarObservacoes,
-} from "@/service/skatenotes/manobras";
 import Manobra from "@/interfaces/skatenotes/Manobras";
 import { coresDark as cores } from "@/temas/cores";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Header from "@/components/skatenotes/HeaderDetalhes_manobra";
-import {
-  salvarObservacoesLocal,
-  carregarObservacoesLocal,
-  limparObservacoesLocal,
-} from "@/service/asyncStorage";
+import { salvarObservacoesLocal } from "@/service/asyncStorage";
+import Anexo from "@/interfaces/skatenotes/Anexo";
+import * as ImagePicker from "expo-image-picker";
+import * as manobraUtils from "./utils/manobraUtils";
+import { separarAnexos } from "./utils/mediaUtils";
+import { carregarObservacoes } from "./utils/observacoesUtils";
 
 export default function Observacoes() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { manobraId } = params;
+
   const [manobra, setManobra] = useState<Manobra | null>(null);
   const [texto, setTexto] = useState("");
   const [dropdownAberto, setDropdownAberto] = useState(false);
@@ -45,28 +40,31 @@ export default function Observacoes() {
     "ok"
   );
 
+  const [fotos, setFotos] = useState<Anexo[]>([]);
+  const [videos, setVideos] = useState<Anexo[]>([]);
+
   async function carregarManobra(manobraId: string) {
-    const result = await buscarManobraById(manobraId);
-    if (!result.success) {
-      console.error("Erro ao buscar informações da manobra:", result.error);
-      return;
-    }
-    setManobra(result.data || null);
+    const manobraData = await manobraUtils.buscarManobraPorId(manobraId);
+    if (!manobraData) return;
 
-    const observacoesLocais = await carregarObservacoesLocal(manobraId);
-    setTexto(observacoesLocais || result.data?.observacoes || "");
-    setStatusSelecionado(result.data?.status || null);
+    setManobra(manobraData);
 
-    if (observacoesLocais) {
-      try {
-        await adicionarObservacoes(observacoesLocais, manobraId);
-        setStatusSync("ok");
-        await salvarObservacoesLocal(manobraId, observacoesLocais);
-      } catch (err) {
-        console.error("Erro ao sincronizar com backend:", err);
-        setStatusSync("erro");
-      }
-    }
+    const anexosArray = Array.isArray(manobraData.anexos)
+      ? manobraData.anexos
+      : [];
+    const { fotos: fotosSeparadas, videos: videosSeparados } =
+      separarAnexos(anexosArray);
+    setFotos(fotosSeparadas);
+    setVideos(videosSeparados);
+
+    const obsResult = await carregarObservacoes(manobraId, manobraData);
+    setTexto(obsResult.texto);
+    setStatusSelecionado(obsResult.status);
+    setStatusSync(
+      ["ok", "pendente", "erro"].includes(obsResult.sync)
+        ? (obsResult.sync as "ok" | "pendente" | "erro")
+        : "erro"
+    );
   }
 
   useFocusEffect(
@@ -75,35 +73,31 @@ export default function Observacoes() {
     }, [])
   );
 
-  const handleEdit = async (manobraId: string, novoNome: string) => {
-    const result = await editarManobra(manobraId, novoNome);
-    if (!result.success) {
-      console.error("erro ao editar manobra");
-      return;
+  const handleEdit = async (id: string, novoNome: string) => {
+    try {
+      await manobraUtils.editarManobraHelper(id, novoNome);
+      carregarManobra(id);
+    } catch (err) {
+      console.error(err);
     }
-    carregarManobra(manobraId);
   };
 
-  const handleAtualizarStatus = async (
-    manobraId: string,
-    novoStatus: string
-  ) => {
-    const result = await atualizarStatus(manobraId, novoStatus);
-    if (!result.success) {
-      console.error("erro ao atualizar status da manobra");
-      return;
+  const handleAtualizarStatus = async (id: string, status: string) => {
+    try {
+      await manobraUtils.atualizarStatusManobra(id, status);
+      carregarManobra(id);
+    } catch (err) {
+      console.error(err);
     }
-    carregarManobra(manobraId);
   };
 
-  const handleDelete = async (manobraId: string) => {
-    const result = await deletarManobra(manobraId);
-    if (!result.success) {
-      console.error("erro ao deletar manobra");
-      return;
+  const handleDelete = async (id: string) => {
+    try {
+      await manobraUtils.deletarManobraHelper(id);
+      router.back();
+    } catch (err) {
+      console.error(err);
     }
-    await limparObservacoesLocal(manobraId);
-    router.back();
   };
 
   const handleChangeTexto = async (novoTexto: string) => {
@@ -118,16 +112,41 @@ export default function Observacoes() {
     "Aprender",
   ];
 
-  const fotos = [
-    "https://picsum.photos/400/300?1",
-    "https://picsum.photos/400/300?2",
-    "https://picsum.photos/400/300?3",
-  ];
-  const videos = [
-    "https://www.w3schools.com/html/mov_bbb.mp4",
-    "https://www.w3schools.com/html/mov_bbb.mp4",
-    "https://www.w3schools.com/html/mov_bbb.mp4",
-  ];
+  const handleAddMedia = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permissão necessária para acessar a galeria!");
+      return;
+    }
+
+    const mediaType = abaSelecionada === "fotos" ? "images" : "videos";
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: mediaType,
+      allowsEditing: false,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const selected = result.assets[0];
+      const anexo: Anexo = {
+        url: selected.uri,
+        serverPath: "",
+        tipo: abaSelecionada === "fotos" ? "imagem" : "video",
+        nomeOriginal: selected.fileName || "nome_desconhecido",
+        tamanho: selected.fileSize || 0,
+        formato: selected.type,
+        metadata: {
+          largura: selected.width,
+          altura: selected.height,
+          duracao: selected.duration || undefined,
+        },
+      };
+
+      if (abaSelecionada === "fotos") setFotos((prev) => [...prev, anexo]);
+      else setVideos((prev) => [...prev, anexo]);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -140,7 +159,7 @@ export default function Observacoes() {
         onEdit={handleEdit}
       />
 
-      {/* --- STATUS --- */}
+      {/* STATUS */}
       <View style={styles.statusBox}>
         <Text style={styles.label}>Alterar Status</Text>
         <TouchableOpacity
@@ -156,7 +175,6 @@ export default function Observacoes() {
             color={cores.textoSecundario}
           />
         </TouchableOpacity>
-
         {dropdownAberto && (
           <View style={styles.dropdown}>
             {opcoesStatus.map((opcao) => (
@@ -186,7 +204,7 @@ export default function Observacoes() {
         )}
       </View>
 
-      {/* --- AÇÕES --- */}
+      {/* AÇÕES */}
       <View style={styles.actions}>
         <TouchableOpacity
           style={[
@@ -198,7 +216,6 @@ export default function Observacoes() {
           <MaterialCommunityIcons name="camera" size={20} color={cores.texto} />
           <Text style={styles.botaoTexto}>Fotos</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={[
             styles.botao,
@@ -211,65 +228,126 @@ export default function Observacoes() {
         </TouchableOpacity>
       </View>
 
-      {/* --- MÍDIA --- */}
-      {/* --- MÍDIA --- */}
+      {/* MÍDIA */}
       <View style={styles.mediaSection}>
-        {abaSelecionada === "fotos" &&
-          (fotos.length > 0 ? (
-            fotos.map((foto, index) => (
-              <Image
-                key={index}
-                source={{ uri: foto }}
-                style={styles.card}
-                resizeMode="cover"
-              />
-            ))
-          ) : (
-            <Text style={styles.placeholder}>
-              Nenhuma foto adicionada ainda 📷
-            </Text>
-          ))}
-
-        {abaSelecionada === "videos" &&
-          (videos.length > 0 ? (
-            videos.map((video, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.card,
-                  { justifyContent: "center", alignItems: "center" },
-                ]}
+        {abaSelecionada === "fotos" && (
+          <>
+            {fotos.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ flexDirection: "row", gap: 10 }}
               >
-                <MaterialCommunityIcons
-                  name="video"
-                  size={32}
-                  color={cores.texto}
-                />
-                <Text
-                  style={{
-                    color: cores.textoSecundario,
-                    fontSize: 12,
-                    marginTop: 4,
-                  }}
-                >
-                  Vídeo {index + 1}
+                {fotos.map((foto, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: foto.url }}
+                    style={styles.card}
+                    resizeMode="cover"
+                  />
+                ))}
+                <TouchableOpacity style={styles.card} onPress={handleAddMedia}>
+                  <MaterialCommunityIcons
+                    name="plus"
+                    size={32}
+                    color={cores.textoSecundario}
+                  />
+                </TouchableOpacity>
+              </ScrollView>
+            ) : (
+              <View style={styles.mediaVaziaContainer}>
+                <Text style={styles.mediaVaziaTexto}>
+                  Nenhuma foto adicionada ainda 📷
                 </Text>
+                <TouchableOpacity
+                  style={styles.botaoAdicionarMedia}
+                  onPress={handleAddMedia}
+                >
+                  <MaterialCommunityIcons
+                    name="plus"
+                    size={32}
+                    color={cores.textoSecundario}
+                  />
+                </TouchableOpacity>
               </View>
-            ))
-          ) : (
-            <Text style={styles.placeholder}>
-              Nenhum vídeo adicionado ainda 🎬
-            </Text>
-          ))}
+            )}
+          </>
+        )}
+
+        {abaSelecionada === "videos" && (
+          <>
+            {videos.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ flexDirection: "row", gap: 10 }}
+              >
+                {videos.map((video, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.card,
+                      { justifyContent: "center", alignItems: "center" },
+                    ]}
+                  >
+                    <MaterialCommunityIcons
+                      name="video"
+                      size={32}
+                      color={cores.texto}
+                    />
+                    <Text
+                      style={{
+                        color: cores.textoSecundario,
+                        fontSize: 12,
+                        marginTop: 4,
+                      }}
+                    >
+                      Vídeo {index + 1}
+                    </Text>
+                  </View>
+                ))}
+                <TouchableOpacity
+                  style={[
+                    styles.card,
+                    { justifyContent: "center", alignItems: "center" },
+                  ]}
+                  onPress={handleAddMedia}
+                >
+                  <MaterialCommunityIcons
+                    name="plus"
+                    size={32}
+                    color={cores.textoSecundario}
+                  />
+                </TouchableOpacity>
+              </ScrollView>
+            ) : (
+              <View style={styles.mediaVaziaContainer}>
+                <Text style={styles.mediaVaziaTexto}>
+                  Nenhum vídeo adicionado ainda 🎬
+                </Text>
+                <TouchableOpacity
+                  style={styles.botaoAdicionarMedia}
+                  onPress={handleAddMedia}
+                >
+                  <MaterialCommunityIcons
+                    name="plus"
+                    size={32}
+                    color={cores.textoSecundario}
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
+        )}
 
         {!abaSelecionada && (
           <Text style={styles.placeholder}>
-            Selecione "Fotos" ou "Vídeos" para visualizar os anexos
+            Selecione "Fotos" ou "Vídeos" para visualizar as mídias
           </Text>
         )}
       </View>
 
-      {/* --- EDITOR --- */}
+      {/* EDITOR */}
       <ScrollView
         style={styles.editorWrapper}
         showsVerticalScrollIndicator={false}
@@ -284,7 +362,6 @@ export default function Observacoes() {
           placeholder="# Escreva suas anotações aqui..."
           placeholderTextColor={cores.textoSecundario}
         />
-
         <View style={styles.indicadores}>
           {statusSync === "pendente" && (
             <MaterialCommunityIcons
@@ -357,9 +434,29 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     minHeight: 120,
     flexDirection: "row",
-    flexWrap: "wrap",
     gap: 10,
     justifyContent: "center",
+  },
+  mediaVaziaContainer: {
+    width: "100%",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+    gap: 10,
+    paddingVertical: 20,
+  },
+  mediaVaziaTexto: {
+    color: cores.textoSecundario,
+    fontSize: 14,
+    textAlign: "left",
+  },
+  botaoAdicionarMedia: {
+    alignSelf: "center",
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    backgroundColor: cores.fundoClaro,
+    justifyContent: "center",
+    alignItems: "center",
   },
   card: {
     width: 100,
@@ -367,7 +464,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
     borderRadius: 12,
     overflow: "hidden",
-    backgroundColor: cores.botao,
+    backgroundColor: cores.fundoClaro,
+    alignItems: "center",
+    justifyContent: "center",
   },
   placeholder: {
     color: cores.textoSecundario,

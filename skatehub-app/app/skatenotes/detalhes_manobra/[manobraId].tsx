@@ -16,11 +16,12 @@ import { coresDark as cores } from "@/temas/cores";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Header from "@/components/skatenotes/HeaderDetalhes_manobra";
 import { salvarObservacoesLocal } from "@/service/asyncStorage";
+import * as manobraUtils from "../../../utils/skatenotes/manobraUtils";
+import { separarAnexos } from "../../../utils/skatenotes/mediaUtils";
+import { carregarObservacoes } from "../../../utils/skatenotes/observacoesUtils";
+import { selecionarMidia } from "../../../utils/skatenotes/mediaUtils"; // função modularizada para escolher imagem/video
+import { salvarAnexo } from "@/service/skatenotes/manobras";
 import Anexo from "@/interfaces/skatenotes/Anexo";
-import * as ImagePicker from "expo-image-picker";
-import * as manobraUtils from "./utils/manobraUtils";
-import { separarAnexos } from "./utils/mediaUtils";
-import { carregarObservacoes } from "./utils/observacoesUtils";
 
 export default function Observacoes() {
   const params = useLocalSearchParams();
@@ -49,11 +50,13 @@ export default function Observacoes() {
 
     setManobra(manobraData);
 
+    // Atualiza fotos e videos a partir dos anexos da manobra
     const anexosArray = Array.isArray(manobraData.anexos)
       ? manobraData.anexos
       : [];
     const { fotos: fotosSeparadas, videos: videosSeparados } =
       separarAnexos(anexosArray);
+
     setFotos(fotosSeparadas);
     setVideos(videosSeparados);
 
@@ -113,38 +116,23 @@ export default function Observacoes() {
   ];
 
   const handleAddMedia = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      alert("Permissão necessária para acessar a galeria!");
+    if (!abaSelecionada) {
+      alert("Selecione 'Fotos' ou 'Vídeos' antes de adicionar mídia");
       return;
     }
 
-    const mediaType = abaSelecionada === "fotos" ? "images" : "videos";
+    try {
+      const anexo = await selecionarMidia(abaSelecionada); // função modularizada retorna Anexo ou null
+      if (!anexo) return;
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: mediaType,
-      allowsEditing: false,
-      quality: 1,
-    });
+      // Salvar anexo no backend relacionado à manobra
+      await salvarAnexo(manobraId.toString(), anexo);
 
-    if (!result.canceled) {
-      const selected = result.assets[0];
-      const anexo: Anexo = {
-        url: selected.uri,
-        serverPath: "",
-        tipo: abaSelecionada === "fotos" ? "imagem" : "video",
-        nomeOriginal: selected.fileName || "nome_desconhecido",
-        tamanho: selected.fileSize || 0,
-        formato: selected.type,
-        metadata: {
-          largura: selected.width,
-          altura: selected.height,
-          duracao: selected.duration || undefined,
-        },
-      };
-
-      if (abaSelecionada === "fotos") setFotos((prev) => [...prev, anexo]);
-      else setVideos((prev) => [...prev, anexo]);
+      alert("Mídia enviada com sucesso!");
+      carregarManobra(manobraId.toString()); // Atualiza fotos/videos da manobra
+    } catch (error) {
+      console.error("Erro ao adicionar mídia:", error);
+      alert("Erro ao processar a mídia.");
     }
   };
 
@@ -241,7 +229,7 @@ export default function Observacoes() {
                 {fotos.map((foto, index) => (
                   <Image
                     key={index}
-                    source={{ uri: foto.url }}
+                    source={{ uri: foto.serverPath }}
                     style={styles.card}
                     resizeMode="cover"
                   />
@@ -381,6 +369,8 @@ export default function Observacoes() {
     </View>
   );
 }
+
+// Manter o styles do seu código atual
 
 const styles = StyleSheet.create({
   container: {

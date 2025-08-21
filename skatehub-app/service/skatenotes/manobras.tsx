@@ -1,6 +1,7 @@
 import { logErro } from "../utils/LogErro";
 import { getToken } from "../asyncStorage";
 import Manobra from "@/interfaces/skatenotes/Manobras";
+import Anexo from "@/interfaces/skatenotes/Anexo";
 
 export const buscarManobrasObstaculo = async (
   obstaculoId: string
@@ -263,5 +264,36 @@ export const deletarManobra = async (
   } catch (err) {
     logErro(funcName, "Erro ao deletar manobra", err);
     return { success: false, error: "Erro ao deletar manobra" };
+  }
+};
+
+export const salvarAnexo = async (
+  manobraId: string,
+  anexo: Anexo
+): Promise<{ success: boolean; error?: string }> => {
+  const funcName = "salvarAnexo";
+
+  try {
+    const response = await fetch(
+      `https://skatenotes-production.up.railway.app/anexos/${manobraId}/anexo`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(anexo),
+      }
+    );
+
+    if (!response.ok) {
+      const msg = `Erro na requisição: ${response.status} ${response.statusText}`;
+      logErro(funcName, msg);
+      return { success: false, error: msg };
+    }
+
+    return { success: true };
+  } catch (err) {
+    logErro(funcName, "Erro ao salvar anexo no backend", err);
+    return { success: false, error: "Erro ao salvar anexo no backend" };
   }
 };

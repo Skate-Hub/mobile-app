@@ -1,15 +1,34 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { coresDark as cores } from "@/temas/cores";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { removeLogin } from "@/service/asyncStorage";
 
 export default function Hub() {
+  const router = useRouter();
+
   const navegar = (referencia: string) => {
-    const router = useRouter();
-    switch (referencia) {
-      case "skatenotes":
-        router.push("/skatenotes/(tabs)/obstaculos");
-        break;
+    if (referencia === "skatenotes") {
+      router.push("/skatenotes/(tabs)/obstaculos");
     }
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Sair",
+      "Tem certeza que deseja sair da sua conta?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Sair",
+          onPress: async () => {
+            await removeLogin();
+            router.replace("/login");
+          },
+          style: "destructive",
+        },
+      ]
+    );
   };
 
   return (
@@ -18,49 +37,45 @@ export default function Hub() {
       <View style={styles.header}>
         <Text style={styles.titulo}>Acesse as seções</Text>
         <Text style={styles.subtitulo}>
-          Selecione qual seção deseja acessar. Você pode voltar aqui a qualquer
-          momento.
+          Selecione qual seção deseja acessar. Você pode voltar aqui a qualquer momento.
         </Text>
       </View>
 
-      {/* Container de Módulos*/}
+      {/* Módulos */}
       <View style={styles.modulosContainer}>
-        {/* Módulos ativos */}
-
         <TouchableOpacity
           style={[styles.modulo, styles.moduloAtivo]}
           onPress={() => navegar("skatenotes")}
         >
           <View style={[styles.icone, styles.iconeAtivo]} />
-          <View>
+          <View style={styles.moduloInfo}>
             <Text style={styles.moduloTitulo}>SkateNotes</Text>
-            <Text style={styles.moduloDescricao}>
-              Organize suas manobras e progresso
-            </Text>
+            <Text style={styles.moduloDescricao}>Organize suas manobras e progresso</Text>
           </View>
         </TouchableOpacity>
 
-        {/* Módulos inativos */}
         <View style={[styles.modulo, styles.moduloInativo]}>
           <View style={[styles.icone, styles.iconeInativo]} />
-          <View>
+          <View style={styles.moduloInfo}>
             <Text style={styles.moduloTituloInativo}>Eventos</Text>
-            <Text style={styles.moduloDescricaoInativo}>
-              Em breve - Descubra rolês e campeonatos
-            </Text>
+            <Text style={styles.moduloDescricaoInativo}>Em breve - Descubra rolês e campeonatos</Text>
           </View>
         </View>
 
         <View style={[styles.modulo, styles.moduloInativo]}>
           <View style={[styles.icone, styles.iconeInativo]} />
-          <View>
+          <View style={styles.moduloInfo}>
             <Text style={styles.moduloTituloInativo}>Marketplace</Text>
-            <Text style={styles.moduloDescricaoInativo}>
-              Em breve - Compra, venda e troca de equipamentos
-            </Text>
+            <Text style={styles.moduloDescricaoInativo}>Em breve - Compra, venda e troca de equipamentos</Text>
           </View>
         </View>
       </View>
+
+      {/* Logout discreto */}
+      <TouchableOpacity style={styles.logoutBottom} onPress={handleLogout}>
+        <MaterialCommunityIcons name="logout" size={18} color={cores.textoSecundario} />
+        <Text style={styles.logoutText}>Sair</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -69,18 +84,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: cores.fundo,
-    justifyContent: "center",
-    alignItems: "center",
     paddingHorizontal: 20,
+    paddingTop: 60,
   },
   header: {
-    marginTop: 60, // mais espaço do topo
     marginBottom: 30,
     alignItems: "center",
   },
   titulo: {
     color: cores.texto,
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 8,
@@ -89,29 +102,30 @@ const styles = StyleSheet.create({
     color: cores.textoSecundario,
     fontSize: 15,
     textAlign: "center",
-    maxWidth: 280,
-  },
-  secaoTitulo: {
-    color: cores.texto,
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
-    alignSelf: "center",
+    maxWidth: 300,
   },
   modulosContainer: {
-    padding: 10,
+    flex: 1,
+    justifyContent: "flex-start",
   },
   modulo: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
+    padding: 18,
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  moduloInfo: {
+    flex: 1,
   },
   icone: {
-    width: 24,
-    height: 24,
-    borderRadius: 5,
+    width: 28,
+    height: 28,
+    borderRadius: 6,
     marginRight: 15,
   },
   moduloAtivo: {
@@ -123,7 +137,7 @@ const styles = StyleSheet.create({
   moduloTitulo: {
     color: cores.texto,
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 17,
   },
   moduloDescricao: {
     color: cores.textoSecundario,
@@ -131,7 +145,7 @@ const styles = StyleSheet.create({
   },
   moduloInativo: {
     backgroundColor: cores.destaque,
-    opacity: 0.6,
+    opacity: 0.5,
   },
   iconeInativo: {
     backgroundColor: "#555",
@@ -144,5 +158,18 @@ const styles = StyleSheet.create({
   moduloDescricaoInativo: {
     color: "#777",
     fontSize: 14,
+  },
+  logoutBottom: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    marginBottom: 20,
+    opacity: 0.6,
+  },
+  logoutText: {
+    color: cores.textoSecundario,
+    fontSize: 14,
+    marginLeft: 6,
   },
 });

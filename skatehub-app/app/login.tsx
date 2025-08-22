@@ -19,21 +19,51 @@ export default function Login() {
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [lembrar, setLembrar] = useState(false);
+  const [carregando, setCarregando] = useState(true); // Novo estado para controle
   const router = useRouter();
 
   useEffect(() => {
     const checarLoginSalvo = async () => {
-      const loginSalvo = await getLoginSalvo();
-      if (loginSalvo) {
-        setEmail(loginSalvo.email);
-        setSenha(loginSalvo.senha);
-        setLembrar(true);
-        await fazerLogin(loginSalvo.email, loginSalvo.senha);
+      try {
+        const loginSalvo = await getLoginSalvo();
+        if (loginSalvo) {
+          setEmail(loginSalvo.email);
+          setSenha(loginSalvo.senha);
+          setLembrar(true);
+          
+          // Tenta fazer login automático apenas se tiver credenciais salvas
+          const result = await login(loginSalvo.email, loginSalvo.senha);
+          
+          if (result && !result.error) {
+            // Login automático bem-sucedido - redireciona
+            router.replace("/hub");
+            return; // Importante: return para não continuar
+          } else {
+            // Login automático falhou - mostra o formulário normalmente
+            setCarregando(false);
+          }
+        } else {
+          setCarregando(false);
+        }
+      } catch (error) {
+        console.error("Erro ao verificar login salvo:", error);
+        setCarregando(false);
       }
     };
 
     checarLoginSalvo();
   }, []);
+
+  useEffect(() => {
+    const atualizarLogin = async () => {
+      if (!lembrar) {
+        await removeLogin();
+      } else if (email && senha) {
+        await salvaLogin(email, senha);
+      }
+    };
+    atualizarLogin();
+  }, [lembrar, email, senha]);
 
   const fazerLogin = async (loginEmail = email, loginSenha = senha) => {
     const result = await login(loginEmail, loginSenha);
@@ -49,8 +79,18 @@ export default function Login() {
       await removeLogin();
     }
 
-    router.push("/hub");
+    router.replace("/hub");
   };
+
+  // Se ainda está carregando (verificando login salvo), mostra loading
+  if (carregando) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>SkateHub</Text>
+        <Text style={styles.subtitle}>Carregando...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -67,6 +107,8 @@ export default function Login() {
           placeholderTextColor={cores.textoPlaceholder}
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
         />
 
         <Text style={styles.label}>Senha</Text>
@@ -169,6 +211,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     color: cores.texto,
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: cores.borda,
   },
   senhaContainer: {
     flexDirection: "row",

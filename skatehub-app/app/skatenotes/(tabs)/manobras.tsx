@@ -61,7 +61,7 @@ export default function Manobras() {
         onSettings={() => router.push("../configuracoes")}
       />
 
-      <View>
+      <View style={styles.content}>
         <View style={styles.inputContainer}>
           <Ionicons
             name="search-outline"
@@ -124,19 +124,28 @@ export default function Manobras() {
             </View>
           )}
         </View>
-      </View>
 
-      <FlatList
-        data={filtradas}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
-          <CardManobra
-            nome={item.nome}
-            status={item.status}
-            onPress={() => router.push(`../detalhes_manobra/${item._id}`)}
-          />
-        )}
-      />
+        <FlatList
+          data={filtradas}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <CardManobra
+              nome={item.nome}
+              status={item.status}
+              onPress={() => router.push(`../detalhes_manobra/${item._id}`)}
+            />
+          )}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyTitulo}>Nenhuma manobra encontrada</Text>
+              <Text style={styles.emptyDescricao}>
+                Adicione manobras ou altere os filtros para visualizar.
+              </Text>
+            </View>
+          }
+          contentContainerStyle={{ paddingBottom: 24 }}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -146,22 +155,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: cores.fundo,
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    paddingHorizontal: 10,
+  },
+  content: {
+    flex: 1,
+    padding: 10,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: cores.fundoElevado,
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 10,
+    paddingVertical: 12,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: cores.borda,
   },
   input: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 15,
     color: cores.texto,
     padding: 0,
   },
@@ -170,46 +182,63 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: cores.fundoElevado,
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 8,
+    paddingVertical: 12,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: cores.borda,
   },
   filtroText: {
     color: cores.textoSecundario,
-    fontSize: 14,
+    fontSize: 15,
   },
   dropdown: {
     position: "absolute",
-    top: 50,
+    top: 52,
     left: 0,
     right: 0,
     backgroundColor: cores.fundoClaro,
-    borderRadius: 8,
-    zIndex: 10,
-    elevation: 5,
+    borderRadius: 10,
+    zIndex: 20,
+    elevation: 6,
     shadowColor: cores.sombra,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
     borderWidth: 1,
     borderColor: cores.borda,
   },
   dropdownItem: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
   },
   dropdownItemText: {
     color: cores.texto,
-    fontSize: 14,
+    fontSize: 15,
   },
   dropdownItemAtivo: {
     backgroundColor: cores.destaque,
   },
   dropdownItemTextAtivo: {
     color: cores.primario,
-    fontWeight: "bold",
+    fontWeight: "600",
+  },
+  emptyContainer: {
+    marginTop: 60,
+    paddingHorizontal: 24,
+    alignItems: "center",
+  },
+  emptyTitulo: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: cores.texto,
+    marginBottom: 6,
+  },
+  emptyDescricao: {
+    fontSize: 14,
+    color: cores.textoSecundario,
+    textAlign: "center",
+    lineHeight: 20,
   },
 });

@@ -133,7 +133,7 @@ export default function Manobras() {
           <CardManobra
             nome={item.nome}
             status={item.status}
-            onPress={() => router.push(`/skatenotes/observacoes`)}
+            onPress={() => router.push(`../detalhes_manobra/${item._id}`)}
           />
         )}
       />

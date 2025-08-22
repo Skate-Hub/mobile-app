@@ -1,4 +1,5 @@
 export default interface Anexo {
+  _id: string;
   url: string;
   serverPath: string;
   tipo: "imagem" | "video";

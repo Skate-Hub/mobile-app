@@ -27,7 +27,6 @@ export const login = async (email: string, senha: string) => {
     const data = await response.json();
     const token = data.token;
 
-    console.log("token: ", token)
     if (!token) {
       return { error: "Token não recebido do servidor" };
     }

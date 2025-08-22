@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   StatusBar,
   Image,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import Manobra from "@/interfaces/skatenotes/Manobras";
@@ -19,9 +20,10 @@ import { salvarObservacoesLocal } from "@/service/asyncStorage";
 import * as manobraUtils from "../../../utils/skatenotes/manobraUtils";
 import { separarAnexos } from "../../../utils/skatenotes/mediaUtils";
 import { carregarObservacoes } from "../../../utils/skatenotes/observacoesUtils";
-import { selecionarMidia } from "../../../utils/skatenotes/mediaUtils"; // função modularizada para escolher imagem/video
-import { salvarAnexo } from "@/service/skatenotes/manobras";
+import { selecionarMidia } from "../../../utils/skatenotes/mediaUtils";
+import { removerAnexo, salvarAnexo } from "@/service/skatenotes/manobras";
 import Anexo from "@/interfaces/skatenotes/Anexo";
+import ModalPlayer from "@/components/skatenotes/MediaPlayer";
 
 export default function Observacoes() {
   const params = useLocalSearchParams();
@@ -43,6 +45,38 @@ export default function Observacoes() {
 
   const [fotos, setFotos] = useState<Anexo[]>([]);
   const [videos, setVideos] = useState<Anexo[]>([]);
+  const [modalPlayerVisivel, setModalPlayerVisivel] = useState(false);
+  const [midiaSelecionada, setMidiaSelecionada] = useState<Anexo | null>(null);
+  const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
+  
+  // Estados para loading
+  const [adicionandoMidia, setAdicionandoMidia] = useState(false);
+  const [excluindoMidias, setExcluindoMidias] = useState(false);
+  const [midiaAdicionada, setMidiaAdicionada] = useState(false);
+  const [midiaExcluida, setMidiaExcluida] = useState(false);
+
+  const handleAbrirPlayer = (item: Anexo) => {
+    if (selecionados.size > 0) {
+      toggleSelecionado(item._id);
+      return;
+    }
+    setModalPlayerVisivel(true);
+    setMidiaSelecionada(item);
+  };
+
+  const toggleSelecionado = (id: string) => {
+    setSelecionados((prev) => {
+      const novo = new Set();
+      if (!prev.has(id)) {
+        novo.add(id);
+      }
+      return novo;
+    });
+  };
+
+  const limparSelecao = () => {
+    setSelecionados(new Set());
+  };
 
   async function carregarManobra(manobraId: string) {
     const manobraData = await manobraUtils.buscarManobraPorId(manobraId);
@@ -50,7 +84,6 @@ export default function Observacoes() {
 
     setManobra(manobraData);
 
-    // Atualiza fotos e videos a partir dos anexos da manobra
     const anexosArray = Array.isArray(manobraData.anexos)
       ? manobraData.anexos
       : [];
@@ -73,8 +106,24 @@ export default function Observacoes() {
   useFocusEffect(
     useCallback(() => {
       carregarManobra(manobraId.toString());
+      limparSelecao();
     }, [])
   );
+
+  // Limpar mensagens de sucesso após alguns segundos
+  useEffect(() => {
+    if (midiaAdicionada) {
+      const timer = setTimeout(() => setMidiaAdicionada(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [midiaAdicionada]);
+
+  useEffect(() => {
+    if (midiaExcluida) {
+      const timer = setTimeout(() => setMidiaExcluida(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [midiaExcluida]);
 
   const handleEdit = async (id: string, novoNome: string) => {
     try {
@@ -121,18 +170,42 @@ export default function Observacoes() {
       return;
     }
 
+    setAdicionandoMidia(true);
+    
     try {
-      const anexo = await selecionarMidia(abaSelecionada); // função modularizada retorna Anexo ou null
-      if (!anexo) return;
+      const anexo = await selecionarMidia(abaSelecionada);
+      if (!anexo) {
+        setAdicionandoMidia(false);
+        return;
+      }
 
-      // Salvar anexo no backend relacionado à manobra
       await salvarAnexo(manobraId.toString(), anexo);
-
-      alert("Mídia enviada com sucesso!");
-      carregarManobra(manobraId.toString()); // Atualiza fotos/videos da manobra
+      setMidiaAdicionada(true);
+      carregarManobra(manobraId.toString());
+      limparSelecao();
     } catch (error) {
       console.error("Erro ao adicionar mídia:", error);
       alert("Erro ao processar a mídia.");
+    } finally {
+      setAdicionandoMidia(false);
+    }
+  };
+
+  const handleRemoveSelecionados = async () => {
+    setExcluindoMidias(true);
+    
+    try {
+      for (let id of selecionados) {
+        await removerAnexo(manobraId.toString(), id);
+      }
+      setMidiaExcluida(true);
+      limparSelecao();
+      carregarManobra(manobraId.toString());
+    } catch (error) {
+      console.error("Erro ao remover mídia:", error);
+      alert("Erro ao remover as mídias.");
+    } finally {
+      setExcluindoMidias(false);
     }
   };
 
@@ -199,7 +272,10 @@ export default function Observacoes() {
             styles.botao,
             abaSelecionada === "fotos" && styles.botaoAtivo,
           ]}
-          onPress={() => setAbaSelecionada("fotos")}
+          onPress={() => {
+            setAbaSelecionada("fotos");
+            limparSelecao();
+          }}
         >
           <MaterialCommunityIcons name="camera" size={20} color={cores.texto} />
           <Text style={styles.botaoTexto}>Fotos</Text>
@@ -209,7 +285,10 @@ export default function Observacoes() {
             styles.botao,
             abaSelecionada === "videos" && styles.botaoAtivo,
           ]}
-          onPress={() => setAbaSelecionada("videos")}
+          onPress={() => {
+            setAbaSelecionada("videos");
+            limparSelecao();
+          }}
         >
           <MaterialCommunityIcons name="video" size={20} color={cores.texto} />
           <Text style={styles.botaoTexto}>Vídeos</Text>
@@ -218,28 +297,92 @@ export default function Observacoes() {
 
       {/* MÍDIA */}
       <View style={styles.mediaSection}>
+        {/* Mensagens de sucesso */}
+        {midiaAdicionada && (
+          <View style={styles.mensagemSucesso}>
+            <MaterialCommunityIcons name="check-circle" size={16} color="#4CAF50" />
+            <Text style={styles.mensagemSucessoTexto}>Mídia adicionada com sucesso!</Text>
+          </View>
+        )}
+        
+        {midiaExcluida && (
+          <View style={styles.mensagemSucesso}>
+            <MaterialCommunityIcons name="check-circle" size={16} color="#4CAF50" />
+            <Text style={styles.mensagemSucessoTexto}>Mídia excluída com sucesso!</Text>
+          </View>
+        )}
+
+        {selecionados.size > 0 && (
+          <View style={styles.barraExclusao}>
+            <Text style={styles.barraExclusaoTexto}>
+              {selecionados.size} mídia selecionada
+            </Text>
+            <TouchableOpacity
+              style={styles.botaoExcluirGlobal}
+              onPress={handleRemoveSelecionados}
+              disabled={excluindoMidias}
+            >
+              {excluindoMidias ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <MaterialCommunityIcons name="delete" size={20} color="#fff" />
+                  <Text style={styles.botaoExcluirTexto}>Excluir</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+
         {abaSelecionada === "fotos" && (
           <>
             {fotos.length > 0 ? (
-              <ScrollView
-                horizontal
+              <ScrollView 
+                horizontal 
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ flexDirection: "row", gap: 10 }}
+                contentContainerStyle={styles.scrollContent}
               >
-                {fotos.map((foto, index) => (
-                  <Image
-                    key={index}
-                    source={{ uri: foto.serverPath }}
-                    style={styles.card}
-                    resizeMode="cover"
-                  />
+                {fotos.map((foto) => (
+                  <TouchableOpacity
+                    key={foto._id}
+                    onPress={() => handleAbrirPlayer(foto)}
+                    onLongPress={() => toggleSelecionado(foto._id)}
+                    style={[
+                      styles.cardContainer,
+                      selecionados.has(foto._id) && styles.cardSelecionado,
+                    ]}
+                  >
+                    <Image
+                      source={{ uri: foto.serverPath }}
+                      style={styles.card}
+                      resizeMode="cover"
+                    />
+                    {selecionados.has(foto._id) && (
+                      <View style={styles.overlaySelecionado}>
+                        <MaterialCommunityIcons
+                          name="check-circle"
+                          size={24}
+                          color="#4CAF50"
+                        />
+                      </View>
+                    )}
+                  </TouchableOpacity>
                 ))}
-                <TouchableOpacity style={styles.card} onPress={handleAddMedia}>
-                  <MaterialCommunityIcons
-                    name="plus"
-                    size={32}
-                    color={cores.textoSecundario}
-                  />
+
+                <TouchableOpacity 
+                  style={[styles.card, styles.cardAdicionar]} 
+                  onPress={handleAddMedia}
+                  disabled={adicionandoMidia}
+                >
+                  {adicionandoMidia ? (
+                    <ActivityIndicator size="small" color={cores.textoSecundario} />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="plus"
+                      size={32}
+                      color={cores.textoSecundario}
+                    />
+                  )}
                 </TouchableOpacity>
               </ScrollView>
             ) : (
@@ -250,12 +393,17 @@ export default function Observacoes() {
                 <TouchableOpacity
                   style={styles.botaoAdicionarMedia}
                   onPress={handleAddMedia}
+                  disabled={adicionandoMidia}
                 >
-                  <MaterialCommunityIcons
-                    name="plus"
-                    size={32}
-                    color={cores.textoSecundario}
-                  />
+                  {adicionandoMidia ? (
+                    <ActivityIndicator size="small" color={cores.textoSecundario} />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="plus"
+                      size={32}
+                      color={cores.textoSecundario}
+                    />
+                  )}
                 </TouchableOpacity>
               </View>
             )}
@@ -265,47 +413,56 @@ export default function Observacoes() {
         {abaSelecionada === "videos" && (
           <>
             {videos.length > 0 ? (
-              <ScrollView
-                horizontal
+              <ScrollView 
+                horizontal 
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ flexDirection: "row", gap: 10 }}
+                contentContainerStyle={styles.scrollContent}
               >
-                {videos.map((video, index) => (
-                  <View
-                    key={index}
+                {videos.map((video) => (
+                  <TouchableOpacity
+                    key={video._id}
+                    onPress={() => handleAbrirPlayer(video)}
+                    onLongPress={() => toggleSelecionado(video._id)}
                     style={[
-                      styles.card,
-                      { justifyContent: "center", alignItems: "center" },
+                      styles.cardContainer,
+                      selecionados.has(video._id) && styles.cardSelecionado,
                     ]}
                   >
-                    <MaterialCommunityIcons
-                      name="video"
-                      size={32}
-                      color={cores.texto}
-                    />
-                    <Text
-                      style={{
-                        color: cores.textoSecundario,
-                        fontSize: 12,
-                        marginTop: 4,
-                      }}
-                    >
-                      Vídeo {index + 1}
-                    </Text>
-                  </View>
+                    <View style={[styles.card, styles.videoCard]}>
+                      <MaterialCommunityIcons
+                        name="play-circle"
+                        size={32}
+                        color={cores.texto}
+                      />
+                      <Text style={styles.videoText}>
+                        Vídeo
+                      </Text>
+                    </View>
+                    {selecionados.has(video._id) && (
+                      <View style={styles.overlaySelecionado}>
+                        <MaterialCommunityIcons
+                          name="check-circle"
+                          size={24}
+                          color="#4CAF50"
+                        />
+                      </View>
+                    )}
+                  </TouchableOpacity>
                 ))}
                 <TouchableOpacity
-                  style={[
-                    styles.card,
-                    { justifyContent: "center", alignItems: "center" },
-                  ]}
+                  style={[styles.card, styles.cardAdicionar]}
                   onPress={handleAddMedia}
+                  disabled={adicionandoMidia}
                 >
-                  <MaterialCommunityIcons
-                    name="plus"
-                    size={32}
-                    color={cores.textoSecundario}
-                  />
+                  {adicionandoMidia ? (
+                    <ActivityIndicator size="small" color={cores.textoSecundario} />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="plus"
+                      size={32}
+                      color={cores.textoSecundario}
+                    />
+                  )}
                 </TouchableOpacity>
               </ScrollView>
             ) : (
@@ -316,12 +473,17 @@ export default function Observacoes() {
                 <TouchableOpacity
                   style={styles.botaoAdicionarMedia}
                   onPress={handleAddMedia}
+                  disabled={adicionandoMidia}
                 >
-                  <MaterialCommunityIcons
-                    name="plus"
-                    size={32}
-                    color={cores.textoSecundario}
-                  />
+                  {adicionandoMidia ? (
+                    <ActivityIndicator size="small" color={cores.textoSecundario} />
+                  ) : (
+                    <MaterialCommunityIcons
+                      name="plus"
+                      size={32}
+                      color={cores.textoSecundario}
+                    />
+                  )}
                 </TouchableOpacity>
               </View>
             )}
@@ -334,6 +496,13 @@ export default function Observacoes() {
           </Text>
         )}
       </View>
+
+      {/* Modal */}
+      <ModalPlayer
+        visivel={modalPlayerVisivel}
+        midia={midiaSelecionada}
+        onFechar={() => setModalPlayerVisivel(false)}
+      />
 
       {/* EDITOR */}
       <ScrollView
@@ -369,8 +538,6 @@ export default function Observacoes() {
     </View>
   );
 }
-
-// Manter o styles do seu código atual
 
 const styles = StyleSheet.create({
   container: {
@@ -423,9 +590,95 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 16,
     minHeight: 120,
+  },
+  scrollContent: {
     flexDirection: "row",
+    alignItems: "center",
     gap: 10,
+  },
+  // Mensagens de sucesso
+  mensagemSucesso: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  mensagemSucessoTexto: {
+    color: '#4CAF50',
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  barraExclusao: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: cores.destaque,
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  barraExclusaoTexto: {
+    color: cores.texto,
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  botaoExcluirGlobal: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FF3B30",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    minWidth: 80,
+    justifyContent: 'center',
+  },
+  botaoExcluirTexto: {
+    color: "#fff",
+    marginLeft: 6,
+    fontWeight: "600",
+  },
+  cardContainer: {
+    position: "relative",
+  },
+  card: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: cores.fundoClaro,
+    alignItems: "center",
     justifyContent: "center",
+  },
+  cardAdicionar: {
+    borderWidth: 1,
+    borderColor: cores.borda,
+    borderStyle: "dashed",
+  },
+  cardSelecionado: {
+    borderWidth: 3,
+    borderColor: cores.primario,
+  },
+  overlaySelecionado: {
+    position: "absolute",
+    top: 5,
+    right: 5,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    borderRadius: 12,
+    padding: 2,
+  },
+  videoCard: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  videoText: {
+    color: cores.textoSecundario,
+    fontSize: 12,
+    marginTop: 4,
   },
   mediaVaziaContainer: {
     width: "100%",
@@ -447,16 +700,6 @@ const styles = StyleSheet.create({
     backgroundColor: cores.fundoClaro,
     justifyContent: "center",
     alignItems: "center",
-  },
-  card: {
-    width: 100,
-    height: 100,
-    marginRight: 8,
-    borderRadius: 12,
-    overflow: "hidden",
-    backgroundColor: cores.fundoClaro,
-    alignItems: "center",
-    justifyContent: "center",
   },
   placeholder: {
     color: cores.textoSecundario,

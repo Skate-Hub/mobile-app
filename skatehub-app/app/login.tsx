@@ -11,11 +11,8 @@ import { Link, useRouter } from "expo-router";
 import { useState, useEffect } from "react";
 import { coresDark as cores } from "@/temas/cores";
 import { login } from "@/service/auth/authService";
-import {
-  getLoginSalvo,
-  salvaLogin,
-  removeLogin,
-} from "@/service/asyncStorage"
+import { getLoginSalvo, salvaLogin, removeLogin } from "@/service/asyncStorage";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -113,6 +110,16 @@ export default function Login() {
           </Link>
         </Text>
       </View>
+      <View style={styles.infoPrivacidade}>
+        <MaterialCommunityIcons
+          name="shield-check"
+          size={20}
+          color={cores.textoSecundario}
+        />
+        <Text style={styles.infoPrivacidadeTexto}>
+          Seus dados estão protegidos conforme nossa política de privacidade
+        </Text>
+      </View>
     </View>
   );
 }
@@ -196,5 +203,19 @@ const styles = StyleSheet.create({
   link: {
     color: cores.primario,
     fontWeight: "bold",
+  },
+  infoPrivacidade: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: cores.fundoElevado,
+    padding: 15,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  infoPrivacidadeTexto: {
+    color: cores.textoSecundario,
+    fontSize: 12,
+    marginLeft: 10,
+    flex: 1,
   },
 });

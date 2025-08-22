@@ -297,3 +297,33 @@ export const salvarAnexo = async (
     return { success: false, error: "Erro ao salvar anexo no backend" };
   }
 };
+
+export const removerAnexo = async (
+  manobraId: string,
+  anexoId: string
+): Promise<{ success: boolean; error?: string }> => {
+  const funcName = "removerAnexo";
+
+  try {
+    const response = await fetch(
+      `https://skatenotes-production.up.railway.app/anexos/${manobraId}/anexo/${anexoId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const msg = `Erro na requisição: ${response.status} ${response.statusText}`;
+      logErro(funcName, msg);
+      return { success: false, error: msg };
+    }
+
+    return { success: true };
+  } catch (err) {
+    logErro(funcName, "Erro ao remover anexo no backend", err);
+    return { success: false, error: "Erro ao remover anexo no backend" };
+  }
+};

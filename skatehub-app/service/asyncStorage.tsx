@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 
-// Token
+// -------------------- TOKEN --------------------
 export const getToken = async () => {
   try {
     const token = await AsyncStorage.getItem("userToken");
@@ -23,7 +23,7 @@ export const armazenaToken = async (token: string) => {
   }
 };
 
-// Login e senha
+// -------------------- LOGIN E SENHA --------------------
 export const getLoginSalvo = async () => {
   try {
     const email = await AsyncStorage.getItem("@login_email");
@@ -54,11 +54,13 @@ export const removeLogin = async () => {
   }
 };
 
-
-// storageObservacoes.ts
+// -------------------- OBSERVAÇÕES --------------------
 const OBSERVACOES_KEY = "@observacoes";
 
-export const salvarObservacoesLocal = async (manobraId: string, texto: string) => {
+export const salvarObservacoesLocal = async (
+  manobraId: string,
+  texto: string
+) => {
   try {
     await AsyncStorage.setItem(`${OBSERVACOES_KEY}:${manobraId}`, texto);
   } catch (err) {
@@ -81,5 +83,73 @@ export const limparObservacoesLocal = async (manobraId: string) => {
     await AsyncStorage.removeItem(`${OBSERVACOES_KEY}:${manobraId}`);
   } catch (err) {
     console.error("Erro ao limpar observações localmente:", err);
+  }
+};
+
+// -------------------- TREINO FINALIZADO --------------------
+const TREINO_FINALIZADO_KEY = "@treinoFinalizadoHora";
+
+/**
+ * Salva o horário de finalização do treino.
+ * @param date Data de finalização
+ */
+export const salvarHorarioFinalizacao = async (date: Date) => {
+  try {
+    await AsyncStorage.setItem(TREINO_FINALIZADO_KEY, date.toISOString());
+  } catch (error) {
+    console.error("Erro ao salvar horário de finalização:", error);
+  }
+};
+
+/**
+ * Retorna o horário de finalização salvo.
+ */
+export const carregarHorarioFinalizacao = async (): Promise<Date | null> => {
+  try {
+    const valor = await AsyncStorage.getItem(TREINO_FINALIZADO_KEY);
+    return valor ? new Date(valor) : null;
+  } catch (error) {
+    console.error("Erro ao carregar horário de finalização:", error);
+    return null;
+  }
+};
+
+/**
+ * Limpa o horário de finalização.
+ */
+export const limparHorarioFinalizacao = async () => {
+  try {
+    await AsyncStorage.removeItem(TREINO_FINALIZADO_KEY);
+  } catch (error) {
+    console.error("Erro ao limpar horário de finalização:", error);
+  }
+};
+
+// -------------------- RELATORIO TREINO --------------------
+const RELATORIO_TREINO_KEY = "@relatorioTreino";
+
+export const salvarRelatorioTreino = async (texto: string) => {
+  try {
+    await AsyncStorage.setItem(RELATORIO_TREINO_KEY, texto);
+  } catch (error) {
+    console.error("Erro ao salvar relatório do treino:", error);
+  }
+};
+
+export const carregarRelatorioTreino = async (): Promise<string | null> => {
+  try {
+    const valor = await AsyncStorage.getItem(RELATORIO_TREINO_KEY);
+    return valor || null;
+  } catch (error) {
+    console.error("Erro ao carregar relatório do treino:", error);
+    return null;
+  }
+};
+
+export const limparRelatorioTreino = async () => {
+  try {
+    await AsyncStorage.removeItem(RELATORIO_TREINO_KEY);
+  } catch (error) {
+    console.error("Erro ao limpar relatório do treino:", error);
   }
 };

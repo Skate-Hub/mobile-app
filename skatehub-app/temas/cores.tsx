@@ -37,4 +37,7 @@ export const coresDark = {
 
   primarioHover: "#ff9933",
   primarioAtivo: "#cc6600",
+
+  checklistAtivo: "#ff8000",
+  checklistInativo: "#444444",
 };

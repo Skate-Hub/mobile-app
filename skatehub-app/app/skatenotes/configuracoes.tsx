@@ -18,7 +18,11 @@ import { coresDark as cores } from "@/temas/cores";
 export default function Configuracoes() {
   const router = useRouter();
   const [sugestao, setSugestao] = useState("");
+<<<<<<< Updated upstream
   const [notificacoes, setNotificacoes] = useState(true);
+=======
+  const [montagemTreino, setmontagemTreino] = useState(true);
+>>>>>>> Stashed changes
   const [modoEscuro, setModoEscuro] = useState(true);
   const [autoSave, setAutoSave] = useState(true);
 
@@ -120,15 +124,28 @@ export default function Configuracoes() {
 
         <View style={styles.opcao}>
           <View style={styles.opcaoInfo}>
+<<<<<<< Updated upstream
             <MaterialCommunityIcons name="bell" size={24} color={cores.primario} />
             <View style={styles.opcaoTexto}>
               <Text style={styles.opcaoTitulo}>Lembretes de treino</Text>
               <Text style={styles.opcaoDescricao}>Notificações para praticar</Text>
+=======
+            <MaterialCommunityIcons
+              name="progress-check"
+              size={24}
+              color={cores.primario}
+            />
+            <View style={styles.opcaoTexto}>
+              <Text style={styles.opcaoTitulo}>Montagem de treinos</Text>
+              <Text style={styles.opcaoDescricao}>
+                Treinos montados automaticamente para te ajudar a evoluir
+              </Text>
+>>>>>>> Stashed changes
             </View>
           </View>
           <Switch
-            value={notificacoes}
-            onValueChange={setNotificacoes}
+            value={montagemTreino}
+            onValueChange={setmontagemTreino}
             trackColor={{ false: cores.borda, true: cores.primario }}
             thumbColor={modoEscuro ? "#fff" : "#fff"}
           />

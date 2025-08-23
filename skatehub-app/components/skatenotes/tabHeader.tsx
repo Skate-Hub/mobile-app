@@ -1,19 +1,34 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { coresDark } from "@/temas/cores";
 
 interface TabHeaderProps {
   title?: string;
   onAdd?: () => void;
   onSettings?: () => void;
+  onCheckPractice?: () => void;
 }
 
-export default function TabHeader({ title, onAdd, onSettings }: TabHeaderProps) {
+export default function TabHeader({
+  title,
+  onAdd,
+  onSettings,
+  onCheckPractice,
+}: TabHeaderProps) {
   return (
     <View style={styles.header}>
       <Text style={styles.title}>{title}</Text>
       <View style={styles.actions}>
+        {onCheckPractice && (
+          <TouchableOpacity onPress={onCheckPractice} style={styles.iconButton}>
+            <MaterialCommunityIcons
+              name="progress-check"
+              size={20}
+              color={coresDark.aviso}
+            />
+          </TouchableOpacity>
+        )}
         {onAdd && (
           <TouchableOpacity onPress={onAdd} style={styles.iconButton}>
             <Ionicons name="add" size={22} color="#fff" />
@@ -46,6 +61,7 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8
   },
   iconButton: {
     marginLeft: 16,

@@ -46,6 +46,7 @@ export default function Obstaculos() {
         title="Obstáculos"
         onAdd={handleOnAdd}
         onSettings={() => router.push("../configuracoes")}
+        onCheckPractice={() => router.push("/skatenotes/practice")}
       />
       <View style={styles.content}>
         <FlatList<Obstaculo>

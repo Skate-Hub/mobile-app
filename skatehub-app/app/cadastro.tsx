@@ -7,6 +7,8 @@ import {
   Alert,
   ScrollView,
   Linking,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { Link } from "expo-router";
 import { useState } from "react";
@@ -29,11 +31,15 @@ export default function Cadastro() {
   };
 
   const abrirTermosUso = () => {
-    Linking.openURL("https://skatenotes-media-server-production.up.railway.app/static/termos-de-uso.html");
+    Linking.openURL(
+      "https://skatenotes-media-server-production.up.railway.app/static/termos-de-uso.html"
+    );
   };
 
   const abrirPoliticaPrivacidade = () => {
-    Linking.openURL("https://skatenotes-media-server-production.up.railway.app/static/politica-privacidade.html");
+    Linking.openURL(
+      "https://skatenotes-media-server-production.up.railway.app/static/politica-privacidade.html"
+    );
   };
 
   const realizarCadastro = async () => {
@@ -53,7 +59,10 @@ export default function Cadastro() {
     }
 
     if (!aceitouTermos) {
-      Alert.alert("Atenção", "Você precisa aceitar os termos de uso e política de privacidade para continuar.");
+      Alert.alert(
+        "Atenção",
+        "Você precisa aceitar os termos de uso e política de privacidade para continuar."
+      );
       return;
     }
 
@@ -71,10 +80,15 @@ export default function Cadastro() {
   };
 
   return (
-    <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.scrollContainer}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.container}>
         <Text style={styles.title}>SkateHub</Text>
-        <Text style={styles.subtitle}>Crie sua conta para acessar os módulos</Text>
+        <Text style={styles.subtitle}>
+          Crie sua conta para acessar os módulos
+        </Text>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Criar Conta</Text>
@@ -143,11 +157,16 @@ export default function Cadastro() {
 
           {/* Seção de Termos e Política de Privacidade */}
           <View style={styles.termosContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.checkboxContainer}
               onPress={() => setAceitouTermos(!aceitouTermos)}
             >
-              <View style={[styles.checkbox, aceitouTermos && styles.checkboxSelecionado]}>
+              <View
+                style={[
+                  styles.checkbox,
+                  aceitouTermos && styles.checkboxSelecionado,
+                ]}
+              >
                 {aceitouTermos && (
                   <MaterialCommunityIcons name="check" size={16} color="#fff" />
                 )}
@@ -158,15 +177,18 @@ export default function Cadastro() {
                   Termos de Uso
                 </Text>{" "}
                 e{" "}
-                <Text style={styles.termosLink} onPress={abrirPoliticaPrivacidade}>
+                <Text
+                  style={styles.termosLink}
+                  onPress={abrirPoliticaPrivacidade}
+                >
                   Política de Privacidade
                 </Text>
               </Text>
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity 
-            style={[styles.button, !aceitouTermos && styles.buttonDesabilitado]} 
+          <TouchableOpacity
+            style={[styles.button, !aceitouTermos && styles.buttonDesabilitado]}
             onPress={realizarCadastro}
             disabled={!aceitouTermos}
           >
@@ -183,7 +205,11 @@ export default function Cadastro() {
 
         {/* Informações adicionais sobre privacidade */}
         <View style={styles.infoPrivacidade}>
-          <MaterialCommunityIcons name="shield-check" size={20} color={cores.textoSecundario} />
+          <MaterialCommunityIcons
+            name="shield-check"
+            size={20}
+            color={cores.textoSecundario}
+          />
           <Text style={styles.infoPrivacidadeTexto}>
             Seus dados estão protegidos conforme nossa política de privacidade
           </Text>
@@ -204,6 +230,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 20,
     paddingVertical: 40,
+   
   },
   title: {
     fontSize: 28,

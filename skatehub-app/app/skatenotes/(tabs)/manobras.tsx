@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -13,7 +13,7 @@ import {
 import { coresDark as cores } from "@/temas/cores";
 import CardManobra from "@/components/skatenotes/CardManobra";
 import TabHeader from "@/components/skatenotes/tabHeader";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { buscarTodasManobras } from "@/service/skatenotes/manobras";
 import Manobra from "@/interfaces/skatenotes/Manobras";
@@ -36,9 +36,12 @@ export default function Manobras() {
     setManobras(result.data || []);
   }
 
-  useEffect(() => {
-    carregarManobras();
-  }, []);
+   useFocusEffect(
+     useCallback(() => {
+       carregarManobras();
+     }, [])
+   );
+ 
 
   const filtradas = manobras.filter((m) => {
     const matchBusca = m.nome.toLowerCase().includes(busca.toLowerCase());

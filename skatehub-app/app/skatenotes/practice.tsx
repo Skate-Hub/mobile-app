@@ -1,10 +1,4 @@
-import Manobra from "@/interfaces/skatenotes/Manobras";
-import {
-  atualizarStatus,
-  buscarTodasManobras,
-} from "@/service/skatenotes/manobras";
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   ScrollView,
   Text,
@@ -16,8 +10,11 @@ import {
   Alert,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { router, useFocusEffect } from "expo-router";
+
 import { coresDark as cores } from "@/temas/cores";
 import TabHeader from "@/components/skatenotes/tabHeader";
+import { buscarTreino, atualizarStatus } from "@/service/skatenotes/treinos";
 import {
   salvarHorarioFinalizacao,
   carregarHorarioFinalizacao,
@@ -27,51 +24,27 @@ import {
   limparRelatorioTreino,
 } from "@/service/asyncStorage";
 
+import Treino, { SecaoTreino } from "@/interfaces/skatenotes/Treino";
+import Manobra from "@/interfaces/skatenotes/Manobras";
+
 const PracticeScreen = () => {
-  const [manobras, setManobras] = useState<Manobra[]>([]);
-  const [treino, setTreino] = useState<{ [key: string]: Manobra[] } | null>(
-    null
-  );
+  const [treino, setTreino] = useState<Treino | null>(null);
   const [checked, setChecked] = useState<{ [id: string]: boolean }>({});
   const [treinoFinalizado, setTreinoFinalizado] = useState(false);
   const [relatorio, setRelatorio] = useState<string | null>(null);
 
-  const [practiceConfigs] = useState({
-    plano: "padrao",
-    secaoAprimorar: { rotatividade: "3d", quantManobras: 3 },
-    secaoAprender: { rotatividade: null, quantManobras: 1 },
-    secaoNaBase: { rotatividade: "1d", quantManobras: 3 },
-  });
-
-  // -------------------- CARREGAR MANOBRAS --------------------
-  async function carregarManobras() {
-    const result = await buscarTodasManobras();
-    if (!result.success) {
-      console.error("Erro ao buscar manobras do usuário:", result.error);
-      return;
+  // -------------------- CARREGAR TREINO --------------------
+  const carregarTreinoAPI = useCallback(async () => {
+    try {
+      const result = await buscarTreino();
+      if (result.success) {
+        setTreino(result.data || null);
+        console.log(treino)
+      }
+    } catch (error) {
+      console.error("Erro ao carregar treino:", error);
     }
-    setManobras(result.data || []);
-  }
-
-  // -------------------- MONTA TREINO --------------------
-  const montarTreino = useCallback(() => {
-    if (!manobras || manobras.length === 0) {
-      setTreino(null);
-      return;
-    }
-    const treinoMontado: { [key: string]: Manobra[] } = {
-      naBase: manobras
-        .filter((m) => m.status === "Na Base")
-        .slice(0, practiceConfigs.secaoNaBase.quantManobras),
-      aprimorar: manobras
-        .filter((m) => m.status === "Aprimorar")
-        .slice(0, practiceConfigs.secaoAprimorar.quantManobras),
-      aprender: manobras
-        .filter((m) => m.status === "Aprender")
-        .slice(0, practiceConfigs.secaoAprender.quantManobras),
-    };
-    setTreino(treinoMontado);
-  }, [manobras, practiceConfigs]);
+  }, []);
 
   // -------------------- VERIFICA TREINO FINALIZADO --------------------
   const verificarTreinoFinalizado = useCallback(async () => {
@@ -91,32 +64,32 @@ const PracticeScreen = () => {
         setChecked({});
         await limparHorarioFinalizacao();
         await limparRelatorioTreino();
-        montarTreino();
+        carregarTreinoAPI();
       } else {
         setTreinoFinalizado(true);
         setRelatorio(relatorioSalvo);
       }
+    } else {
+
+      carregarTreinoAPI();
     }
-  }, [montarTreino]);
+  }, [carregarTreinoAPI]);
 
   useFocusEffect(
     useCallback(() => {
-      carregarManobras();
       verificarTreinoFinalizado();
     }, [verificarTreinoFinalizado])
   );
 
-  useEffect(() => {
-    montarTreino();
-  }, [manobras, montarTreino]);
-
   // -------------------- TOGGLE CHECK --------------------
-  const toggleCheck = (id: string, secao: string) => {
+  const toggleCheck = (id: string, secao: keyof Treino) => {
     setChecked((prev) => {
       const novoValor = !prev[id];
 
-      if (secao === "Aprender" && novoValor) {
-        const manobra = treino?.aprender.find((m) => m._id === id);
+      if (secao === "aprender" && novoValor) {
+        const manobra = treino?.aprender.manobras.find(
+          (m) => (m as Manobra)._id === id
+        ) as Manobra;
         if (manobra) {
           Alert.alert(
             "Mover para Aprimorar?",
@@ -140,80 +113,77 @@ const PracticeScreen = () => {
   const atualizarStatusParaAprimorar = async (manobra: Manobra) => {
     try {
       await atualizarStatus(manobra._id, "Aprimorar");
-      await carregarManobras();
       setChecked({});
+      carregarTreinoAPI();
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
     }
   };
 
   // -------------------- RENDER SEÇÃO --------------------
-  const renderSecao = (titulo: string, lista: Manobra[] = []) => (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{titulo}</Text>
-      {lista.length > 0 ? (
-        lista.map((item) => (
-          <TouchableOpacity
-            key={item._id}
-            style={styles.itemContainer}
-            onPress={() => toggleCheck(item._id, titulo)}
-          >
-            <View
-              style={[
-                styles.checkbox,
-                checked[item._id] && styles.checkboxSelecionado,
-              ]}
+
+  const renderSecao = (titulo: string, secao: SecaoTreino) => {
+    const lista = secao.manobras as Manobra[];
+    return (
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>{titulo}</Text>
+        {lista.length > 0 ? (
+          lista.map((item) => (
+            <TouchableOpacity
+              key={(item as Manobra)._id}
+              style={styles.itemContainer}
+              onPress={() =>
+                toggleCheck(
+                  (item as Manobra)._id,
+                  titulo.toLowerCase() as keyof Treino
+                )
+              }
             >
-              {checked[item._id] && (
-                <MaterialCommunityIcons
-                  name="check"
-                  size={16}
-                  color={cores.branco}
-                />
-              )}
-            </View>
-            <Text style={styles.itemText}>{item.nome}</Text>
-          </TouchableOpacity>
-        ))
-      ) : (
-        <Text style={styles.emptyText}>Nenhuma manobra nessa seção</Text>
-      )}
-    </View>
-  );
+              <View
+                style={[
+                  styles.checkbox,
+                  checked[(item as Manobra)._id] && styles.checkboxSelecionado,
+                ]}
+              >
+                {checked[(item as Manobra)._id] && (
+                  <MaterialCommunityIcons
+                    name="check"
+                    size={16}
+                    color={cores.branco}
+                  />
+                )}
+              </View>
+              <Text style={styles.itemText}>{(item as Manobra).nome}</Text>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.emptyText}>Nenhuma manobra nessa seção</Text>
+        )}
+      </View>
+    );
+  };
 
   // -------------------- FINALIZAR TREINO --------------------
   const finalizarTreino = async () => {
     if (!treino) return;
 
-    const secaoAprimorarMarcadas = treino.aprimorar.filter(
-      (m) => checked[m._id]
-    );
-    const secaoAprenderMarcadas = treino.aprender.filter((m) => checked[m._id]);
-    const secaoNaBaseMarcadas = treino.naBase.filter((m) => checked[m._id]);
+    const secoes = ["aprimorar", "aprender", "naBase"] as const;
+    let totalMarcadas = 0;
+    let mensagem = "✅ Treino Finalizado!\n\n";
 
-    const totalMarcadas =
-      secaoAprimorarMarcadas.length +
-      secaoAprenderMarcadas.length +
-      secaoNaBaseMarcadas.length;
+    secoes.forEach((secao) => {
+      const marcadas = (treino[secao].manobras as Manobra[]).filter(
+        (m) => checked[m._id]
+      );
+      if (marcadas.length) {
+        mensagem += `${secao.charAt(0).toUpperCase() + secao.slice(1)} (${
+          marcadas.length
+        }): ${marcadas.map((m) => m.nome).join(", ")}\n`;
+        totalMarcadas += marcadas.length;
+      }
+    });
 
-    let mensagem = `✅ Treino Finalizado!\n\nTotal de manobras praticadas: ${totalMarcadas}\n\n`;
-
-    if (secaoAprenderMarcadas.length)
-      mensagem += `Aprender (${
-        secaoAprenderMarcadas.length
-      }): ${secaoAprenderMarcadas.map((m) => m.nome).join(", ")}\n`;
-
-    if (secaoAprimorarMarcadas.length)
-      mensagem += `Aprimorar (${
-        secaoAprimorarMarcadas.length
-      }): ${secaoAprimorarMarcadas.map((m) => m.nome).join(", ")}\n`;
-
-    if (secaoNaBaseMarcadas.length)
-      mensagem += `Na Base (${
-        secaoNaBaseMarcadas.length
-      }): ${secaoNaBaseMarcadas.map((m) => m.nome).join(", ")}\n`;
-
-    mensagem += `\nVolte amanhã para um novo treino!`;
+    mensagem = `Total de manobras praticadas: ${totalMarcadas}\n\n${mensagem}\nVolte amanhã para um novo treino!`;
 
     setChecked({});
     setTreinoFinalizado(true);
@@ -226,8 +196,7 @@ const PracticeScreen = () => {
   const handleLimpezaTeste = async () => {
     await limparHorarioFinalizacao();
     await limparRelatorioTreino();
-    
-    setTreinoFinalizado(false)
+    setTreinoFinalizado(false);
   };
 
   return (
@@ -245,28 +214,28 @@ const PracticeScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         {!treinoFinalizado ? (
-          <>
-            {treino && (
-              <>
-                {renderSecao("Aprimorar", treino.aprimorar)}
-                {renderSecao("Aprender", treino.aprender)}
-                {renderSecao("Na Base", treino.naBase)}
-              </>
-            )}
-            <TouchableOpacity
-              style={styles.finalizarBtn}
-              onPress={finalizarTreino}
-            >
-              <Text style={styles.finalizarBtnText}>Finalizar Treino</Text>
-            </TouchableOpacity>
-          </>
+          treino && (
+            <>
+              {renderSecao("Aprimorar", treino.aprimorar)}
+              {renderSecao("Aprender", treino.aprender)}
+              {renderSecao("Na Base", treino.naBase)}
+              <TouchableOpacity
+                style={styles.finalizarBtn}
+                onPress={finalizarTreino}
+              >
+                <Text style={styles.finalizarBtnText}>Finalizar Treino</Text>
+              </TouchableOpacity>
+            </>
+          )
         ) : (
           <View>
             <View style={styles.relatorioContainer}>
               <Text style={styles.relatorioText}>{relatorio}</Text>
             </View>
-            {/*botao para teste - limpa os dados de relatorio */}
-            <TouchableOpacity style={styles.finalizarBtn} onPress={handleLimpezaTeste}>
+            <TouchableOpacity
+              style={styles.finalizarBtn}
+              onPress={handleLimpezaTeste}
+            >
               <Text>Limpar dados de treino finalizado e relatorio</Text>
             </TouchableOpacity>
           </View>

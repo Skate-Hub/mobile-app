@@ -14,7 +14,7 @@ import { router, useFocusEffect } from "expo-router";
 
 import { coresDark as cores } from "@/temas/cores";
 import TabHeader from "@/components/skatenotes/tabHeader";
-import { buscarTreino, atualizarStatus } from "@/service/skatenotes/treinos";
+import { buscarTreino } from "@/service/skatenotes/treinos";
 import {
   salvarHorarioFinalizacao,
   carregarHorarioFinalizacao,
@@ -26,12 +26,20 @@ import {
 
 import Treino, { SecaoTreino } from "@/interfaces/skatenotes/Treino";
 import Manobra from "@/interfaces/skatenotes/Manobras";
+import {
+  atualizarStatus,
+  buscarTodasManobras,
+} from "@/service/skatenotes/manobras";
+import DefineConfigs from "@/components/skatenotes/practiceScreen/defineConfigs";
 
 const PracticeScreen = () => {
   const [treino, setTreino] = useState<Treino | null>(null);
   const [checked, setChecked] = useState<{ [id: string]: boolean }>({});
   const [treinoFinalizado, setTreinoFinalizado] = useState(false);
   const [relatorio, setRelatorio] = useState<string | null>(null);
+  const [manobras, setManobras] = useState<Manobra[] | null>(null);
+  const [defineConfigsSectionVisible, setDefineConfigsSectionVisible] =
+    useState(false);
 
   // -------------------- CARREGAR TREINO --------------------
   const carregarTreinoAPI = useCallback(async () => {
@@ -39,47 +47,54 @@ const PracticeScreen = () => {
       const result = await buscarTreino();
       if (result.success) {
         setTreino(result.data || null);
-        console.log(treino)
       }
     } catch (error) {
       console.error("Erro ao carregar treino:", error);
     }
   }, []);
 
-  // -------------------- VERIFICA TREINO FINALIZADO --------------------
-  const verificarTreinoFinalizado = useCallback(async () => {
-    const horaFinalizacao = await carregarHorarioFinalizacao();
-    const relatorioSalvo = await carregarRelatorioTreino();
+  // -------------------- MONTAR TREINO --------------------
+  const montarTreino = async () => {
+    try {
+      const result = await buscarTodasManobras();
+      const todasManobras = result.success ? result.data || [] : [];
+      console.log(todasManobras);
 
-    if (horaFinalizacao && relatorioSalvo) {
-      const agora = new Date();
-      const proximoDia = new Date(horaFinalizacao);
-      proximoDia.setDate(proximoDia.getDate() + 1);
-      proximoDia.setHours(0, 0, 0, 0);
+      // Função para pegar manobras filtradas
+      const pegarManobras = (status: string, quantidade: number) => {
+        const filtradas = todasManobras.filter((m) => m.status === status);
+        return filtradas.slice(0, quantidade);
+      };
 
-      if (agora >= proximoDia) {
-        // Treino expirou
-        setTreinoFinalizado(false);
-        setRelatorio(null);
-        setChecked({});
-        await limparHorarioFinalizacao();
-        await limparRelatorioTreino();
-        carregarTreinoAPI();
-      } else {
-        setTreinoFinalizado(true);
-        setRelatorio(relatorioSalvo);
-      }
-    } else {
+      if (!treino) return;
 
-      carregarTreinoAPI();
+      const aprender = treino.aprender?.quantManobras
+        ? pegarManobras("Aprender", treino.aprender.quantManobras)
+        : [];
+      const aprimorar = treino.aprimorar?.quantManobras
+        ? pegarManobras("Aprimorar", treino.aprimorar.quantManobras)
+        : [];
+      const naBase = treino.naBase?.quantManobras
+        ? pegarManobras("Na Base", treino.naBase.quantManobras)
+        : [];
+
+      setTreino({
+        ...treino,
+        aprender: { ...treino.aprender, manobras: aprender },
+        aprimorar: { ...treino.aprimorar, manobras: aprimorar },
+        naBase: { ...treino.naBase, manobras: naBase },
+      });
+
+      console.log("Treino atualizado:", {
+        aprender,
+        aprimorar,
+        naBase,
+      });
+    } catch (error) {
+      console.error("Erro ao montar treino:", error);
+      alert("erro ao montar treino");
     }
-  }, [carregarTreinoAPI]);
-
-  useFocusEffect(
-    useCallback(() => {
-      verificarTreinoFinalizado();
-    }, [verificarTreinoFinalizado])
-  );
+  };
 
   // -------------------- TOGGLE CHECK --------------------
   const toggleCheck = (id: string, secao: keyof Treino) => {
@@ -193,6 +208,46 @@ const PracticeScreen = () => {
     await salvarRelatorioTreino(mensagem);
   };
 
+  // -------------------- VERIFICA TREINO FINALIZADO --------------------
+  const verificarTreinoFinalizado = useCallback(async () => {
+    const horaFinalizacao = await carregarHorarioFinalizacao();
+    const relatorioSalvo = await carregarRelatorioTreino();
+
+    if (horaFinalizacao && relatorioSalvo) {
+      const agora = new Date();
+      const proximoDia = new Date(horaFinalizacao);
+      proximoDia.setDate(proximoDia.getDate() + 1);
+      proximoDia.setHours(0, 0, 0, 0);
+
+      if (agora >= proximoDia) {
+        // Treino expirou
+        setTreinoFinalizado(false);
+        setRelatorio(null);
+        setChecked({});
+        await limparHorarioFinalizacao();
+        await limparRelatorioTreino();
+        carregarTreinoAPI();
+      } else {
+        setTreinoFinalizado(true);
+        setRelatorio(relatorioSalvo);
+      }
+    } else {
+      carregarTreinoAPI();
+    }
+  }, [carregarTreinoAPI]);
+
+  useFocusEffect(
+    useCallback(() => {
+      verificarTreinoFinalizado();
+    }, [verificarTreinoFinalizado])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarTreinoAPI();
+    }, [carregarTreinoAPI])
+  );
+
   const handleLimpezaTeste = async () => {
     await limparHorarioFinalizacao();
     await limparRelatorioTreino();
@@ -205,40 +260,40 @@ const PracticeScreen = () => {
         title="Treino do Dia"
         onSettings={() => router.push("/skatenotes/configuracoes")}
       />
-      <Text style={styles.subtitle}>
-        Marque o que praticou e acompanhe a evolução
-      </Text>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {!treinoFinalizado ? (
-          treino && (
-            <>
-              {renderSecao("Aprimorar", treino.aprimorar)}
-              {renderSecao("Aprender", treino.aprender)}
-              {renderSecao("Na Base", treino.naBase)}
-              <TouchableOpacity
-                style={styles.finalizarBtn}
-                onPress={finalizarTreino}
-              >
-                <Text style={styles.finalizarBtnText}>Finalizar Treino</Text>
-              </TouchableOpacity>
-            </>
-          )
-        ) : (
-          <View>
-            <View style={styles.relatorioContainer}>
-              <Text style={styles.relatorioText}>{relatorio}</Text>
-            </View>
+        {treino &&
+        (treino.aprender?.manobras?.length ||
+          treino.aprimorar?.manobras?.length ||
+          treino.naBase?.manobras?.length) ? (
+          <>
+            <Text style={styles.subtitle}>
+              Marque o que praticou e acompanhe a evolução
+            </Text>
+            {renderSecao("Aprimorar", treino.aprimorar)}
+            {renderSecao("Aprender", treino.aprender)}
+            {renderSecao("Na Base", treino.naBase)}
+
             <TouchableOpacity
               style={styles.finalizarBtn}
-              onPress={handleLimpezaTeste}
+              onPress={() => {
+                alert(
+                  "voce finalizou seu treino, volte amanhã para treinar mais"
+                );
+              }}
             >
-              <Text>Limpar dados de treino finalizado e relatorio</Text>
+              <Text style={styles.finalizarBtnText}>Finalizar Treino</Text>
             </TouchableOpacity>
-          </View>
+          </>
+        ) : (
+          <>
+            <DefineConfigs
+              montarTreino={montarTreino}
+            />
+          </>
         )}
       </ScrollView>
     </View>

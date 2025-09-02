@@ -3,7 +3,7 @@ import { getToken } from "../asyncStorage";
 import { logErro } from "../utils/LogErro";
 import Treino from "@/interfaces/skatenotes/Treino";
 
-export const buscarTreino = async (): Promise<{
+export const  buscarTreino = async (): Promise<{
   success: boolean;
   data?: Treino | null;
   error?: string;

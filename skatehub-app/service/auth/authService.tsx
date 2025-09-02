@@ -33,6 +33,7 @@ export const login = async (email: string, senha: string) => {
 
     await armazenaToken(token);
 
+    console.log(token);
     return { token };
   } catch (error) {
     return { error: "Erro na requisição" };
